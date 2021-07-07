@@ -1,71 +1,18 @@
-const connection = require('../config/db_connection');
-
+const { querySQL } = require('../helpers');
 module.exports = {
   getAllUsers: () => {
-    return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM users', (error, result) => {
-        if (!error) {
-          resolve(result);
-        } else {
-          reject(error);
-        }
-      });
-    });
+    return querySQL('SELECT * FROM users');
   },
   getUserId: (id) => {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM users WHERE id = ?',
-        id,
-        (error, result) => {
-          if (!error) {
-            // console.log(22, result);
-            resolve(result);
-          } else {
-            reject(error);
-          }
-        }
-      );
-    });
+    return querySQL('SELECT * FROM users WHERE id = ?', id);
   },
   createUser: (data) => {
-    return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO users SET ?', data, (error, result) => {
-        if (!error) {
-          resolve(result);
-        } else {
-          reject(error);
-        }
-      });
-    });
+    return querySQL('INSERT INTO users SET ?', data);
   },
   updateUser: (id, data) => {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE users SET ? WHERE id = ?', [data, id],
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(error);
-          }
-        }
-      );
-    });
+    return querySQL('UPDATE users SET ? WHERE id = ?', [data, id]);
   },
   deleteUser: (id) => {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'DELETE FROM users WHERE id = ?',
-        id,
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(error);
-          }
-        }
-      );
-    });
+    return querySQL('DELETE FROM users WHERE id = ?', id);
   },
 };

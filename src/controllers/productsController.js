@@ -1,4 +1,4 @@
-const { productControl } = require('../helpers');
+const { response } = require('../helpers');
 const ProductsModel = require('../models/products');
 
 const {
@@ -13,97 +13,74 @@ module.exports = {
   getAllProducts: (req, res) => {
     getAllProducts()
       .then((result) => {
-        res.status(200).json({
-          message: 'Success get all products',
-          data: result,
-        });
+        const products = result;
+        // console.log('data products', products);
+        response(res, 200, products);
       })
       .catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          message: 'Internal server error',
-        });
+        response(res, 500, {}, err);
       });
   },
   getItemProduct: (req, res) => {
     const id = req.params.id;
     getItemProduct(id)
       .then((result) => {
-        res.status(201).json({
-          message: 'Success get item product',
-          data: result,
-        });
+        const product = result;
+        response(res, 200, product);
       })
       .catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          message: 'Internal sever error',
-        });
+        response(res, 500, {}, err);
       });
   },
   createNewProducts: (req, res) => {
-    const { nameProduct, description, price, stock } = req.body;
+    const { nameProduct, description, price, stock, updatedAt } = req.body;
     const dataProducts = {
       nameProduct,
       description,
       price,
       stock,
+      updatedAt,
     };
+    console.log(dataProducts);
     createNewProduct(dataProducts)
-      .then(() => {
-        res.status(200).json({
-          message: 'Success add product',
-        });
+      .then((result) => {
+        console.log(result);
+        response(res, 200);
       })
       .catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          message: 'Failed to add product',
-        });
+        response(res, 500, {}, err);
       });
   },
   updateProduct: (req, res) => {
     const id = req.params.id;
-    const { nameProduct, description, price, stock } = req.body;
+    const { nameProduct, description, price, id_category, stock } = req.body;
     const dataProduct = {
       nameProduct,
       description,
       price,
+      id_category,
       stock,
+      updatedAt: new Date(),
     };
+    console.log(dataProduct);
+
     updateProduct(id, dataProduct)
       .then((result) => {
-        res.status(201).json({
-          message: 'Success update product',
-        });
+        response(res, 200, dataProduct);
       })
       .catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          message: 'Failed to update product',
-        });
+        response(res, 500, {}, err);
       });
   },
   deleteProduct: (req, res) => {
     const id = req.params.id;
-    console.log(id);
     deleteProduct(id)
       .then((result) => {
-        console.log(result.affectedRows);
-        if (result.affectedRows) {
-          res.status(200).json({
-            message: 'Success deleted produts',
-          });
-        } else {
-          res.status(404).json({
-            message: 'Data not found',
-          });
-        }
+        console.log(result);
+        response(res, 200);
       })
       .catch((err) => {
-        res.status(500).json({
-          message: 'Failed to deleted product',
-        });
+        response(res, 500, {}, err);
       });
   },
 };

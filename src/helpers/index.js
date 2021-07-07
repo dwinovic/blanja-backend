@@ -1,4 +1,4 @@
 const querySQL = require('./querySql');
-const productControl = require('./productControl');
+const response = require('./response');
 
-module.exports = { querySQL, productControl };
+module.exports = { querySQL, response };

@@ -6,58 +6,15 @@ module.exports = {
     return querySQL(`SELECT * FROM products`);
   },
   getItemProduct: (id) => {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT * FROM products WHERE id = ?`,
-        id,
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(error);
-          }
-        }
-      );
-    });
+    return querySQL('SELECT * FROM products WHERE id = ?', id);
   },
   createNewProduct: (data) => {
-    return new Promise((resolve, reject) => {
-      connection.query(`INSERT INTO products SET ?`, data, (error, result) => {
-        if (!error) {
-          resolve(result);
-        } else {
-          reject(error);
-        }
-      });
-    });
+    return querySQL(`INSERT INTO products SET ?`, data);
   },
   updateProduct: (id, data) => {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        `UPDATE products SET ? WHERE id = ?`, [data, id],
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(error);
-          }
-        }
-      );
-    });
+    return querySQL(`UPDATE products SET ? WHERE id = ?`, [data, id]);
   },
   deleteProduct: (id) => {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        `DELETE FROM products WHERE id = ?`,
-        id,
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(error);
-          }
-        }
-      );
-    });
+    return querySQL(`DELETE FROM products WHERE id = ?`, id);
   },
 };

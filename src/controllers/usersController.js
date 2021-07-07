@@ -1,3 +1,4 @@
+const { response } = require('../helpers');
 const UserModel = require('../models/users');
 
 module.exports = {
@@ -5,16 +6,11 @@ module.exports = {
     UserModel.getAllUsers()
       .then((result) => {
         const users = result;
-        res.status(201).json({
-          message: 'Success Get All Users',
-          data: users,
-        });
+        response(res, 200, users);
       })
       .catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          message: 'Internal server error',
-        });
+        // console.log(err);
+        response(res, 500, {}, err);
       });
   },
   getUserId: (req, res) => {
@@ -22,19 +18,11 @@ module.exports = {
     UserModel.getUserId(id)
       .then((result) => {
         const data = result;
-        console.log(data);
-        // if(data)
-        res.status(201).json({
-          message: 'Success',
-          data: data,
-        });
+        response(res, 200, data);
       })
       .catch((err) => {
-        res.status(404).json({
-          message: 'User not found',
-        });
+        response(res, 500, {}, err);
       });
-    console.log(id);
   },
   createUser: (req, res) => {
     const { email, password, name, phoneNumber, gender, born } = req.body;
@@ -46,17 +34,13 @@ module.exports = {
       gender,
       born,
     };
-    console.log(dataUser);
+    // console.log(dataUser);
     UserModel.createUser(dataUser)
       .then(() => {
-        res.status(201).json({
-          message: 'User success register',
-        });
+        response(res, 200);
       })
       .then((err) => {
-        res.status(500).json({
-          message: 'User failed to register',
-        });
+        response(res, 500, {}, err);
       });
   },
   updateUser: (req, res) => {
@@ -68,17 +52,14 @@ module.exports = {
       name,
       phoneNumber,
       gender,
+      updatedAt: new Date(),
     };
     UserModel.updateUser(id, newData)
       .then(() => {
-        res.status(201).json({
-          message: 'Success user update',
-        });
+        response(res, 200);
       })
-      .catch((errr) => {
-        res.status(500).json({
-          message: 'User failed to update user',
-        });
+      .catch((err) => {
+        response(res, 500, {}, err);
       });
   },
   deleteUser: (req, res) => {
@@ -86,14 +67,10 @@ module.exports = {
     // console.log(id);
     UserModel.deleteUser(id)
       .then(() => {
-        res.status(201).json({
-          message: 'Success user deleted',
-        });
+        response(res, 200);
       })
       .catch((err) => {
-        res.status(500).json({
-          message: 'Failed to delete user',
-        });
+        response(res, 500, {}, err);
       });
   },
 };
