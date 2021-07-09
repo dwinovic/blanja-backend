@@ -2,29 +2,29 @@ const { response } = require('../helpers');
 const UserModel = require('../models/users');
 
 module.exports = {
-  getAllUsers: (req, res) => {
+  getAllUsers: (req, res, next) => {
     UserModel.getAllUsers()
       .then((result) => {
         const users = result;
         response(res, 200, users);
       })
-      .catch((err) => {
-        // console.log(err);
-        response(res, 500, {}, err);
-      });
+      .catch(next);
+    // .catch((err) => {
+    //   const error = new Error(err);
+    //   error.status = 500;
+    //   next(error);
+    // });
   },
-  getUserId: (req, res) => {
+  getUserId: (req, res, next) => {
     const id = req.params.id;
     UserModel.getUserId(id)
       .then((result) => {
         const data = result;
         response(res, 200, data);
       })
-      .catch((err) => {
-        response(res, 500, {}, err);
-      });
+      .catch(next);
   },
-  createUser: (req, res) => {
+  createUser: (req, res, next) => {
     const { email, password, name, phoneNumber, gender, born } = req.body;
     const dataUser = {
       email,
@@ -39,11 +39,9 @@ module.exports = {
       .then(() => {
         response(res, 200);
       })
-      .then((err) => {
-        response(res, 500, {}, err);
-      });
+      .then(next);
   },
-  updateUser: (req, res) => {
+  updateUser: (req, res, next) => {
     const id = req.params.id;
     const { email, password, name, phoneNumber, gender } = req.body;
     const newData = {
@@ -58,19 +56,25 @@ module.exports = {
       .then(() => {
         response(res, 200);
       })
-      .catch((err) => {
-        response(res, 500, {}, err);
-      });
+      .catch(next);
   },
-  deleteUser: (req, res) => {
+  deleteUser: (req, res, next) => {
     const id = req.params.id;
-    // console.log(id);
     UserModel.deleteUser(id)
       .then(() => {
         response(res, 200);
       })
-      .catch((err) => {
-        response(res, 500, {}, err);
-      });
+      .catch(next);
+  },
+  loginUser: (req, res, next) => {
+    const { email, password } = req.body;
+    const dataUser = { email, password };
+    // console.log(dataUser);
+    UserModel.getUserEmail(dataUser.email)
+      .then((result) => {
+        // console.log(res);
+        response(res, 200);
+      })
+      .catch(next);
   },
 };

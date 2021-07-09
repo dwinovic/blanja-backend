@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const productController = require('../controllers/productsController');
-
+const ProductModel = require('../models/products');
 const {
+  findProduct,
   getAllProducts,
   getItemProduct,
   createNewProducts,
   updateProduct,
   deleteProduct,
-} = productController;
+} = require('../controllers/productsController');
+const pagination = require('../middleware/pagination');
 
 router
+  .get('/', pagination(ProductModel), findProduct)
   .get('/', getAllProducts)
   .post('/add', createNewProducts)
   .get('/:id', getItemProduct)

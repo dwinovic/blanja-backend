@@ -1,6 +1,6 @@
-const response = (res, statusCode, data, error) => {
+const response = (res, statusCode, data, error, message) => {
   const dataResponse = {
-    status: 'Success',
+    status: message || 'Success',
     statusCode,
     data,
     error: error || null,

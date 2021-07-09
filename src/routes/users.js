@@ -4,7 +4,8 @@ const userController = require('../controllers/usersController');
 
 router
   .get('/', userController.getAllUsers)
-  .post('/', userController.createUser)
+  .post('/register', userController.createUser)
+  .post('/login', userController.loginUser)
   .get('/:id', userController.getUserId)
   .post('/:id', userController.updateUser)
   .delete('/:id', userController.deleteUser);
