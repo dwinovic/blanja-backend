@@ -1,38 +1,53 @@
+const { searchProducts } = require('../models/products');
+const convertionAllPage = require('./convertionAllPage');
 const srcResponse = require('./srcResponse');
-const { searchFeature } = require('../models/publicModel');
 
 module.exports = srcFeature = async(req, res, next) => {
   const querySrc = req.query.src;
   const queryLimit = parseInt(req.query.limit);
   const queryTables = req.baseUrl.substring(1);
   const querySort = req.query.sort || 'DESC';
+  const queryPage = req.query.page;
   const queryField = req.query.field || 'updatedAt';
   const limit = queryLimit || 8;
 
   // response data
-  let dataResponse = {
-    meta: {},
-    data: {},
-  };
+  let dataResponse = {};
 
-  await searchFeature(querySrc, limit, queryTables, queryField, querySort)
-    .then((result) => {
-      console.log(result);
-      const { countResult, limit, data } = result;
+  let startIndex = queryPage || 1;
 
-      dataResponse.meta = {
-        keyword: querySrc,
-        countResult: countResult,
+  // searching product
+  if (queryTables === 'products') {
+    await searchProducts(
+        querySrc,
         limit,
-        sortBy: `${queryField} ${querySort}`,
-      };
+        queryTables,
+        queryField,
+        querySort,
+        startIndex
+      )
+      .then((result) => {
+        // console.log(result);
+        // res.status(200).json(result);
 
-      dataResponse.data = data;
+        const { countResult, limit, data, totalPage } = result;
+        // totalPage
 
-      // res.status(500).json(dataResponse);
+        dataResponse.meta = {
+          keyword: querySrc,
+          countResult: countResult,
+          totalPage,
+          limit,
+          sortBy: `${queryField} ${querySort}`,
+        };
 
-      srcResponse(res, 200, dataResponse.meta, dataResponse.data, {});
-    })
-    .catch(next);
-  next();
+        dataResponse.data = data;
+        // console.log(dataResponse);
+        res.result = dataResponse;
+      })
+      .catch(next);
+    next();
+  } else if (queryTables === 'users') {
+    console.log('Searching Users in development');
+  }
 };

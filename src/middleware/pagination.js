@@ -18,16 +18,7 @@ module.exports = pagination = () => {
     // default limit is 8
     let limit = 8;
     // data object to send response foward
-    const dataResponse = {
-      status: 'Success',
-      statusCode: 200,
-      pagination: {
-        totalPage: null,
-        currentPage: null,
-        limit: null,
-      },
-      data: null,
-    };
+    const dataResponse = {};
 
     // limiation logic
     let startIndex;
@@ -48,10 +39,10 @@ module.exports = pagination = () => {
         )
         .then((result) => {
           const data = result;
-          console.log(data);
+          // console.log(data);
 
-          dataResponse.pagination.currentPage = page;
-          dataResponse.pagination.limit = limit;
+          dataResponse.currentPage = page;
+          dataResponse.limit = limit;
           dataResponse.data = data;
         })
         .catch(next);
@@ -70,8 +61,8 @@ module.exports = pagination = () => {
         .then((result) => {
           const data = result;
 
-          dataResponse.pagination.currentPage = page;
-          dataResponse.pagination.limit = limit;
+          dataResponse.currentPage = page;
+          dataResponse.limit = limit;
           dataResponse.data = data;
         })
         .catch(next);
@@ -80,28 +71,28 @@ module.exports = pagination = () => {
     // all page
     await countAllRowsData(queryTables).then((result) => {
       const data = Object.values(result[0])[0];
-      let allPage = data / dataResponse.pagination.limit; // 10.33333
+      let allPage = data / dataResponse.limit; // 10.33333
       let fixed = allPage.toFixed(0); // 10
       let fixed2 = allPage.toFixed(1); // 10.3
       // console.log(allPage);
       // console.log('fixed: ', fixed);
       // console.log('fixed2: ', fixed2);
       if (parseInt(fixed) < parseInt(fixed2)) {
-        console.log(parseInt(fixed) + 1);
+        // console.log(parseInt(fixed) + 1);
         allPage = parseInt(fixed) + 1;
-        dataResponse.pagination.totalPage = allPage;
+        dataResponse.totalPage = allPage;
       } else {
         // console.log('else', fixed);
         allPage = parseInt(fixed);
-        dataResponse.pagination.totalPage = allPage;
+        dataResponse.totalPage = allPage;
       }
     });
 
     // response
-    dataResponse.pagination.sortBy = `${queryField} ${querySort}`;
+    dataResponse.sortBy = `${queryField} ${querySort}`;
 
     if (!req.query.src) {
-      res.status(200).json(dataResponse);
+      res.pagination = dataResponse;
     }
 
     next();

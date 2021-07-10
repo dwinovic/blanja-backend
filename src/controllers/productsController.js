@@ -10,15 +10,26 @@ const {
 
 module.exports = {
   getAllProducts: (req, res, next) => {
+    // pagination
+    if (!req.query.src) {
+      const { currentPage, limit, data, totalPage, sortBy } = res.pagination;
+
+      const meta = {
+        currentPage,
+        limit,
+        totalPage,
+        sortBy,
+      };
+
+      srcResponse(res, 200, meta, data);
+    }
+    // searching
     if (req.query.src) {
-      srcFeature(req, res, next)
-        .then((result) => {
-          console.log(result);
-          const meta = result.meta;
-          const data = result.data;
-          // srcResponse(res, 200, meta, data, {});
-        })
-        .catch(next);
+      srcFeature(req, res, next).then(() => {
+        const data = res.result.data;
+        const meta = res.result.meta;
+        srcResponse(res, 200, meta, data, {});
+      });
     }
   },
   getItemProduct: (req, res) => {
