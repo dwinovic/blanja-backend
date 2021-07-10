@@ -1,86 +1,109 @@
-const productsController = require('../controllers/productsController');
-const { response } = require('../helpers');
+const { paginationModel, countAllRowsData } = require('../models/publicModel');
 
-const pagination = (model) => {
+module.exports = pagination = () => {
   return async(req, res, next) => {
-    console.log(req.query);
-
-    // return;
+    // default route, don't have a quey param, pure url
     const isQueryParams = Object.keys(req.query);
+
+    // query pagination
     let queryPage = parseInt(req.query.page);
     let queryLimit = parseInt(req.query.limit);
-    let querySort = req.query.sort;
-    let queryField = req.query.field;
+    let queryTables = req.baseUrl.substring(1);
 
-    let page;
-    // default limit
+    // query sort and filter
+    let querySort = req.query.sort || 'DESC';
+    let queryField = req.query.field || 'updatedAt';
+
+    let page = 1;
+    // default limit is 8
     let limit = 8;
-    let queryGetAll;
-    const limitResult = {};
+    // data object to send response foward
+    const dataResponse = {
+      status: 'Success',
+      statusCode: 200,
+      pagination: {
+        totalPage: null,
+        currentPage: null,
+        limit: null,
+      },
+      data: null,
+    };
+
+    // limiation logic
     let startIndex;
-    let endIndex;
-    let errorHandling;
+
+    // error handler
 
     if (isQueryParams.length === 0) {
       page = 1;
       limit;
-      console.log(limit);
+      startIndex = 0;
 
-      await model
-        .getAllProductBySort(queryGetAll)
+      await paginationModel(
+          queryTables,
+          queryField,
+          querySort,
+          limit,
+          startIndex
+        )
         .then((result) => {
           const data = result;
-          startIndex = (page - 1) * limit;
-          endIndex = page * limit;
+          console.log(data);
 
-          const limitData = data.slice(startIndex, endIndex);
-
-          limitResult.page = page;
-          limitResult.limit = limit;
-          limitResult.result = limitData;
+          dataResponse.pagination.currentPage = page;
+          dataResponse.pagination.limit = limit;
+          dataResponse.data = data;
         })
-        .catch((err) => {
-          console.log('error', err);
-          errorHandling = err;
-        });
+        .catch(next);
     } else {
-      page = queryPage;
+      page = queryPage || page;
       limit = queryLimit || limit;
+      startIndex = (page - 1) * limit;
 
-      queryGetAll = `SELECT * FROM products ORDER BY products.updatedAt ${
-        !querySort ? 'DESC' : querySort
-      }`;
-
-      await model
-        .getAllProductBySort(queryGetAll)
+      await paginationModel(
+          queryTables,
+          queryField,
+          querySort,
+          limit,
+          startIndex
+        )
         .then((result) => {
           const data = result;
-          startIndex = (page - 1) * limit;
-          endIndex = page * limit;
-          const limitData = data.slice(startIndex, endIndex);
 
-          limitResult.page = page;
-          limitResult.limit = limit;
-          limitResult.result = limitData;
+          dataResponse.pagination.currentPage = page;
+          dataResponse.pagination.limit = limit;
+          dataResponse.data = data;
         })
-        .catch((err) => {
-          console.log('error', err);
-          errorHandling = err;
-        });
+        .catch(next);
     }
 
-    if (Object.keys(limitResult).length === 0) {
-      limitResult.status = 'error';
-      limitResult.statusCode = 500;
-      limitResult.error = errorHandling;
-      console.log('limitResult', limitResult);
-      res.pagination = limitResult;
-    } else {
-      res.pagination = limitResult;
+    // all page
+    await countAllRowsData(queryTables).then((result) => {
+      const data = Object.values(result[0])[0];
+      let allPage = data / dataResponse.pagination.limit; // 10.33333
+      let fixed = allPage.toFixed(0); // 10
+      let fixed2 = allPage.toFixed(1); // 10.3
+      // console.log(allPage);
+      // console.log('fixed: ', fixed);
+      // console.log('fixed2: ', fixed2);
+      if (parseInt(fixed) < parseInt(fixed2)) {
+        console.log(parseInt(fixed) + 1);
+        allPage = parseInt(fixed) + 1;
+        dataResponse.pagination.totalPage = allPage;
+      } else {
+        // console.log('else', fixed);
+        allPage = parseInt(fixed);
+        dataResponse.pagination.totalPage = allPage;
+      }
+    });
+
+    // response
+    dataResponse.pagination.sortBy = `${queryField} ${querySort}`;
+
+    if (!req.query.src) {
+      res.status(200).json(dataResponse);
     }
 
     next();
   };
 };
-
-module.exports = pagination;

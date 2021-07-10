@@ -16,20 +16,4 @@ module.exports = {
   deleteProduct: (id) => {
     return querySQL(`DELETE FROM products WHERE id = ?`, id);
   },
-  findProduct: (data) => {
-    return querySQL(
-      'SELECT * FROM products ORDER BY products.price ASC LIMIT 5'
-    );
-  },
-  limitationProduct: (limit) => {
-    return querySQL(
-      'SELECT * FROM products ORDER BY products.updatedAt DESC LIMIT ?',
-      limit
-    );
-  },
-  getAllProductBySort: (field, sortBy, limit) => {
-    return querySQL(
-      `SELECT * FROM products ORDER BY products.${field} ${sortBy} LIMIT ${limit}`
-    );
-  },
 };

@@ -1,40 +1,25 @@
-const { response } = require('../helpers');
-const { findProduct } = require('../models/products');
-const ProductsModel = require('../models/products');
-
+const { response, srcResponse, srcFeature } = require('../helpers');
 const {
+  searchProduct,
   getAllProducts,
   getItemProduct,
   updateProduct,
   createNewProduct,
   deleteProduct,
-} = ProductsModel;
+} = require('../models/products');
 
 module.exports = {
-  findProduct: (req, res) => {
-    // console.log(req.query);
-    const searching = req.query.src;
-    const sort = req.query.sort;
-
-    // pagination default
-    if (!searching || !sort) {
-      const data = res.pagination;
-      if (data.statusCode === 500) {
-        response(res, 500, {}, data.error, data.status);
-      }
-      response(res, 200, data);
+  getAllProducts: (req, res, next) => {
+    if (req.query.src) {
+      srcFeature(req, res, next)
+        .then((result) => {
+          console.log(result);
+          const meta = result.meta;
+          const data = result.data;
+          // srcResponse(res, 200, meta, data, {});
+        })
+        .catch(next);
     }
-  },
-  getAllProducts: (req, res) => {
-    getAllProducts()
-      .then((result) => {
-        const products = result;
-        // console.log('data products', products);
-        response(res, 200, products);
-      })
-      .catch((err) => {
-        response(res, 500, {}, err);
-      });
   },
   getItemProduct: (req, res) => {
     const id = req.params.id;

@@ -3,6 +3,7 @@ const UserModel = require('../models/users');
 
 module.exports = {
   getAllUsers: (req, res, next) => {
+    return;
     UserModel.getAllUsers()
       .then((result) => {
         const users = result;
