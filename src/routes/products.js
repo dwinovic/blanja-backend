@@ -12,7 +12,7 @@ const { pagination } = require('../middleware');
 const products = require('../models/products');
 
 router
-  .get('/', pagination(products.getAllProducts), getAllProducts)
+  .get('/', getAllProducts)
   .post('/add', createNewProducts)
   .get('/:id', getItemProduct)
   .post('/:id', updateProduct)

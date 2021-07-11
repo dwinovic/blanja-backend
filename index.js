@@ -4,6 +4,7 @@ const userRouter = require('./src/routes/users');
 const productRouter = require('./src/routes/products');
 const categoryRouter = require('./src/routes/category');
 const paymentRouter = require('./src/routes/payments');
+const transactionRouter = require('./src/routes/transaction');
 const cors = require('cors');
 const { errorHandling } = require('./src/middleware');
 
@@ -22,6 +23,7 @@ app.use('/users', userRouter);
 app.use('/products', productRouter);
 app.use('/category', categoryRouter);
 app.use('/payments', paymentRouter);
+app.use('/transactions', transactionRouter);
 
 app.use((err, req, res, next) => {
   errorHandling(err, req, res, next);

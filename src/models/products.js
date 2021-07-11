@@ -1,25 +1,46 @@
 const querySQL = require('../helpers/querySql');
 
 module.exports = {
-  getAllProducts: () => {
-    return querySQL(
-      `SELECT products.id, products.nameProduct,  category.nameCategory, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM products INNER JOIN category ON products.id_category=category.id`
-    );
-    // return querySQL(`SELECT * FROM products`);
+  getAllProductsModel: async(field, sortBy, limit, offset) => {
+    const queryJoin = `SELECT 
+    products.id,
+    products.nameProduct,
+    category.nameCategory,
+    products.description,
+    products.price,
+    products.stock,
+    products.imageProduct,
+    products.createdAt, 
+    products.updatedAt 
+  FROM products 
+    INNER JOIN category 
+      ON products.id_category=category.id`;
+
+    const countDataInRows = await querySQL(`SELECT COUNT(*) FROM products`);
+
+    let countRows = parseInt(Object.values(countDataInRows[0]));
+
+    const querySortLimitAndMore = `
+    ORDER BY products.${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const queryAll = await querySQL(`${queryJoin} ${querySortLimitAndMore}`);
+
+    return { countRows, result: queryAll };
   },
-  getItemProduct: (id) => {
+  getItemProductModel: (id) => {
     return querySQL('SELECT * FROM products WHERE id = ?', id);
   },
-  createNewProduct: (data) => {
+  createNewProductModel: (data) => {
     return querySQL(`INSERT INTO products SET ?`, data);
   },
-  updateProduct: (id, data) => {
+  updateProductModel: (id, data) => {
     return querySQL(`UPDATE products SET ? WHERE id = ?`, [data, id]);
   },
   deleteProduct: (id) => {
     return querySQL(`DELETE FROM products WHERE id = ?`, id);
   },
-  searchProducts: async(value, limit, table, field, sortBy, offset) => {
+  searchProductsModel: async(value, limit, table, field, sortBy, offset) => {
     // console.log(value, limit, table, field, sortBy);
     // check result count searching
 
@@ -39,7 +60,7 @@ module.exports = {
     // console.log(typeof offset);
 
     limitResult = await querySQL(
-      `SELECT * FROM ${table}  WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%' ORDER BY ${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}`
+      `SELECT products.id, products.nameProduct,  category.nameCategory, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM ${table} INNER JOIN category ON products.id_category=category.id  WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%' OR nameCategory LIKE '%${value}%' ORDER BY ${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}`
     );
 
     // totalPage

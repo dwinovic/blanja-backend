@@ -1,4 +1,4 @@
 const errorHandling = require('./errorHandling');
-const pagination = require('./pagination');
+const pagination = require('../helpers/pagination');
 
 module.exports = { errorHandling, pagination };
