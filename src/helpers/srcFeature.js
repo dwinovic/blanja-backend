@@ -14,7 +14,7 @@ module.exports = srcFeature = async(req, res, next) => {
   // response data
   let dataResponse = {};
 
-  let startIndex = queryPage || 1;
+  let startIndex = (queryPage - 1) * limit || 0;
 
   // searching product
   if (queryTables === 'products') {
@@ -27,21 +27,28 @@ module.exports = srcFeature = async(req, res, next) => {
         startIndex
       )
       .then((result) => {
-        // console.log(result);
+        console.log(result);
         // res.status(200).json(result);
+        // return;
 
-        const { countResult, limit, data, totalPage } = result;
+        const { totalData, limit, data, totalPage, statusCode, errorMessage } =
+        result;
         // totalPage
 
         dataResponse.meta = {
           keyword: querySrc,
-          countResult: countResult,
+          totalData,
           totalPage,
+          currentPage: queryPage,
           limit,
           sortBy: `${queryField} ${querySort}`,
         };
 
         dataResponse.data = data;
+        dataResponse.error = {
+          statusCode,
+          message: errorMessage,
+        };
         // console.log(dataResponse);
         res.result = dataResponse;
       })

@@ -1,20 +1,28 @@
-const { response } = require('../helpers');
+const { response, srcResponse } = require('../helpers');
 const UserModel = require('../models/users');
 
 module.exports = {
   getAllUsers: (req, res, next) => {
-    return;
-    UserModel.getAllUsers()
-      .then((result) => {
-        const users = result;
-        response(res, 200, users);
-      })
-      .catch(next);
-    // .catch((err) => {
-    //   const error = new Error(err);
-    //   error.status = 500;
-    //   next(error);
-    // });
+    // pagination
+    if (!req.query.src) {
+      const { currentPage, limit, data, totalPage, sortBy, error, totalData } =
+      res.pagination;
+
+      const meta = {
+        currentPage,
+        totalData,
+        limit,
+        totalPage,
+        sortBy,
+      };
+      // console.log(data);
+      if (data.length === 0) {
+        // console.log(error);
+        srcResponse(res, 404, meta, {}, error, error);
+      } else {
+        srcResponse(res, 200, meta, data);
+      }
+    }
   },
   getUserId: (req, res, next) => {
     const id = req.params.id;

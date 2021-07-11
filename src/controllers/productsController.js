@@ -11,24 +11,49 @@ const {
 module.exports = {
   getAllProducts: (req, res, next) => {
     // pagination
+    // if (!req.query.src) {
+    //   getAllProducts().then((result) => {
+    //     res.status(200).json(result);
+    //   });
+    // }
     if (!req.query.src) {
-      const { currentPage, limit, data, totalPage, sortBy } = res.pagination;
+      const { currentPage, limit, data, totalPage, sortBy, error, totalData } =
+      res.pagination;
 
+      // console.log(Object.keys(res.pagination));
+      // return;
       const meta = {
         currentPage,
+        totalData,
         limit,
         totalPage,
         sortBy,
       };
-
-      srcResponse(res, 200, meta, data);
+      // console.log(data);
+      if (data.length === 0) {
+        // console.log(error);
+        srcResponse(res, 404, meta, {}, error, error);
+      } else {
+        srcResponse(res, 200, meta, data);
+      }
     }
     // searching
     if (req.query.src) {
       srcFeature(req, res, next).then(() => {
         const data = res.result.data;
         const meta = res.result.meta;
-        srcResponse(res, 200, meta, data, {});
+        const error = res.result.error;
+        if (error.statusCode && error.message) {
+          srcResponse(
+            res,
+            error.statusCode,
+            meta, {},
+            error.message,
+            error.message
+          );
+        } else {
+          srcResponse(res, 200, meta, data, {});
+        }
       });
     }
   },

@@ -5,13 +5,13 @@ module.exports = convertionAllPage = async() => {
   let newPage;
   if (parseInt(fixed) < parseInt(fixed2)) {
     newPage = parseInt(fixed) + 1;
-    console.log('no');
+    // console.log('no');
   } else {
     newPage = parseInt(fixed);
-    console.log('yes');
+    // console.log('yes');
   }
-  console.log(oldPage);
-  console.log(fixed);
-  console.log(fixed2);
+  // console.log(oldPage);
+  // console.log(fixed);
+  // console.log(fixed2);
   return;
 };

@@ -2,7 +2,10 @@ const querySQL = require('../helpers/querySql');
 
 module.exports = {
   getAllProducts: () => {
-    return querySQL(`SELECT * FROM products`);
+    return querySQL(
+      `SELECT products.id, products.nameProduct,  category.nameCategory, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM products INNER JOIN category ON products.id_category=category.id`
+    );
+    // return querySQL(`SELECT * FROM products`);
   },
   getItemProduct: (id) => {
     return querySQL('SELECT * FROM products WHERE id = ?', id);
@@ -28,24 +31,21 @@ module.exports = {
     const getCountRows = await querySQL(
       `SELECT COUNT(*) FROM ${table} WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%'`
     );
+    // console.log(getCountRows);
     const dataCountRows = getCountRows[0];
     let numDataCountRows = Object.values(dataCountRows)[0];
     let limitResult;
     // console.log(numDataCountRows);
-    if (numDataCountRows <= 8) {
-      limitResult = await querySQL(
-        `SELECT * FROM ${table} WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%'`
-      );
-    } else {
-      limitResult = await querySQL(
-        `SELECT * FROM ${table}  WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%' LIMIT ${limit} OFFSET ${offset}`
-      );
-    }
+    // console.log(typeof offset);
+
+    limitResult = await querySQL(
+      `SELECT * FROM ${table}  WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%' ORDER BY ${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}`
+    );
 
     // totalPage
     const totalPageBefore = numDataCountRows / limit; // 2.374
-    const convertMin = totalPageBefore.toFixed(0); // 2
-    const convertMax = totalPageBefore.toFixed(1); // 2.3
+    const convertMin = parseInt(totalPageBefore.toFixed(0)); // 2
+    const convertMax = parseInt(totalPageBefore.toFixed(1)); // 2.3
     let totalPageAfter;
 
     if (convertMin < convertMax) {
@@ -53,17 +53,25 @@ module.exports = {
     } else {
       totalPageAfter = parseInt(convertMin);
     }
+    // console.log(totalPageAfter);
 
     // console.log(1, totalPageBefore);
     // console.log(2, convertMin);
     // console.log(3, convertMax);
     // console.log(4, totalPageAfter);
-    const dataResponse = {
-      countResult: numDataCountRows,
-      limit,
+
+    let dataResponse = {
+      totalData: numDataCountRows,
+      limit: numDataCountRows > limit ? limit : numDataCountRows,
       totalPage: totalPageAfter,
       data: limitResult,
     };
+
+    // console.log(limitResult.length);
+    if (limitResult.length === 0) {
+      dataResponse.statusCode = 404;
+      dataResponse.errorMessage = 'Page not found';
+    }
     return dataResponse;
   },
 };
