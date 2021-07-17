@@ -1,16 +1,16 @@
-module.exports = srcFeature = async(req, res, next, model) => {
-  const querySrc = req.query.src;
-  const queryLimit = parseInt(req.query.limit);
-  const queryTables = req.baseUrl.substring(1);
-  const querySort = req.query.sort || 'DESC';
-  const queryPage = req.query.page || 1;
-  const queryField = req.query.field || 'updatedAt';
-  const limit = queryLimit || 8;
+const srcFeature = async (req, res, next, model) => {
+  const querySrc = req.query.src
+  const queryLimit = parseInt(req.query.limit)
+  const queryTables = req.baseUrl.substring(1)
+  const querySort = req.query.sort || 'DESC'
+  const queryPage = req.query.page || 1
+  const queryField = req.query.field || 'updatedAt'
+  const limit = queryLimit || 8
 
   // response data
-  let dataResponse = {};
+  const dataResponse = {}
 
-  let startIndex = (queryPage - 1) * limit || 0;
+  const startIndex = (queryPage - 1) * limit || 0
   // searching product
 
   // GET DATA FROM MODELS
@@ -21,7 +21,7 @@ module.exports = srcFeature = async(req, res, next, model) => {
       // return;
 
       const { totalData, limit, data, totalPage, statusCode, errorMessage } =
-      result;
+      result
       // totalPage
 
       dataResponse.meta = {
@@ -30,17 +30,19 @@ module.exports = srcFeature = async(req, res, next, model) => {
         totalPage: totalPage || 1,
         currentPage: queryPage,
         limit,
-        sortBy: `${queryField} ${querySort}`,
-      };
+        sortBy: `${queryField} ${querySort}`
+      }
 
-      dataResponse.data = data;
+      dataResponse.data = data
       dataResponse.error = {
         statusCode,
-        message: errorMessage,
-      };
+        message: errorMessage
+      }
       // console.log(dataResponse);
-      res.result = dataResponse;
+      res.result = dataResponse
     })
-    .catch(next);
-  next();
-};
+    .catch(next)
+  next()
+}
+
+module.exports = srcFeature

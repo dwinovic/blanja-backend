@@ -1,18 +1,18 @@
-const express = require('express');
+const express = require('express')
 const {
   createNewMethodItem,
   getAllMethod,
   getItemMethod,
   updateMethodItem,
-  deleteMethodItem,
-} = require('../controllers/paymentsController');
+  deleteMethodItem
+} = require('../controllers/paymentsController')
 
-const router = express.Router();
+const router = express.Router()
 router
   .get('/', getAllMethod)
   .post('/', createNewMethodItem)
   .get('/:id', getItemMethod)
   .post('/:id', updateMethodItem)
-  .delete('/:id', deleteMethodItem);
+  .delete('/:id', deleteMethodItem)
 
-module.exports = router;
+module.exports = router

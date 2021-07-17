@@ -3,10 +3,10 @@ const response = (res, statusCode, data, error, message) => {
     status: message || 'Success',
     statusCode,
     data,
-    error: error || null,
-  };
+    error: error || null
+  }
 
-  res.status(statusCode).json(dataResponse);
-};
+  res.status(statusCode).json(dataResponse)
+}
 
-module.exports = response;
+module.exports = response

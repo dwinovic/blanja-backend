@@ -1,6 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const userController = require('../controllers/usersController');
+const express = require('express')
+const router = express.Router()
+const userController = require('../controllers/usersController')
 
 router
   .get('/', userController.getAllUsers)
@@ -8,6 +8,6 @@ router
   .post('/login', userController.loginUser)
   .get('/:id', userController.getUserId)
   .post('/:id', userController.updateUser)
-  .delete('/:id', userController.deleteUser);
+  .delete('/:id', userController.deleteUser)
 
-module.exports = router;
+module.exports = router

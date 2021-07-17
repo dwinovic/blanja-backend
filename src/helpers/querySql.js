@@ -1,15 +1,15 @@
-const connection = require('../config/db_connection');
+const connection = require('../config/db_connection')
 
 const querySQL = (query, data) => {
   return new Promise((resolve, reject) => {
     connection.query(query, data, (error, result) => {
       if (!error) {
-        resolve(result);
+        resolve(result)
       } else {
-        reject(error);
+        reject(error)
       }
-    });
-  });
-};
+    })
+  })
+}
 
-module.exports = querySQL;
+module.exports = querySQL
