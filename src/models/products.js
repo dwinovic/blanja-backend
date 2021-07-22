@@ -1,21 +1,23 @@
 const querySQL = require('../helpers/querySql');
 
 module.exports = {
-  getAllProductsModel: async (field, sortBy, limit, offset) => {
-    //   const queryJoin = `SELECT
-    //   products.id,
-    //   products.nameProduct,
-    //   category.nameCategory,
-    //   products.description,
-    //   products.price,
-    //   products.stock,
-    //   products.imageProduct,
-    //   products.createdAt,
-    //   products.updatedAt
-    // FROM products
-    //   INNER JOIN category
-    //     ON products.id_category=category.id`;
-    const queryJoin = `SELECT * FROM products`;
+  getAllProductsModel: async (field, sortBy, limit, offset, category) => {
+    const queryJoin = `SELECT
+      products.id,
+      products.nameProduct,
+      category.nameCategory,
+      products.description,
+      products.price,
+      products.stock,
+      products.imageProduct,
+      products.createdAt,
+      products.updatedAt
+    FROM products
+      INNER JOIN category
+        ON products.id_category=category.id`;
+    // const queryJoin = `SELECT * FROM products`;
+    const querySelectByCategory = `WHERE products.id_category = ${category},
+      `;
 
     const countDataInRows = await querySQL('SELECT COUNT(*) FROM products');
 
@@ -25,12 +27,14 @@ module.exports = {
     ORDER BY products.${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}
     `;
 
-    const queryAll = await querySQL(`${queryJoin} ${querySortLimitAndMore}`);
+    const queryAll = await querySQL(`${queryJoin}  ${querySortLimitAndMore}`);
 
     return { countRows, result: queryAll };
   },
   getItemProductModel: (id) => {
-    return querySQL('SELECT * FROM products WHERE id = ?', id);
+    const queryJoin = `SELECT * FROM products`;
+
+    return querySQL(`${queryJoin} WHERE id = ${id}`);
   },
   createNewProductModel: (data) => {
     return querySQL('INSERT INTO products SET ?', data);
@@ -41,7 +45,15 @@ module.exports = {
   deleteProduct: (id) => {
     return querySQL('DELETE FROM products WHERE id = ?', id);
   },
-  searchProductsModel: async (value, limit, table, field, sortBy, offset) => {
+  searchProductsModel: async (
+    value,
+    limit,
+    table,
+    field,
+    sortBy,
+    offset,
+    category
+  ) => {
     // console.log(value, limit, table, field, sortBy);
     // check result count searching
 
@@ -59,8 +71,15 @@ module.exports = {
     // console.log(numDataCountRows);
     // console.log(typeof offset);
 
+    const queryByCategory = `WHERE category.nameCategory LIKE '%${category}%'`;
+    const querySearching = `WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%' OR nameCategory LIKE '%${value}%'`;
+
     const limitResult = await querySQL(
-      `SELECT products.id, products.nameProduct,  category.nameCategory, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM ${table} INNER JOIN category ON products.id_category=category.id  WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%' OR nameCategory LIKE '%${value}%' ORDER BY ${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}`
+      `SELECT products.id, products.nameProduct,  category.nameCategory, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM ${table} INNER JOIN category ON products.id_category=category.id ${
+        category ? queryByCategory : ''
+      } ${
+        value ? querySearching : ''
+      } ORDER BY ${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}`
     );
 
     // totalPage
