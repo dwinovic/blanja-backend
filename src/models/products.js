@@ -1,7 +1,7 @@
 const querySQL = require('../helpers/querySql');
 
 module.exports = {
-  getAllProductsModel: async (field, sortBy, limit, offset) => {
+  getAllProductsModel: async(field, sortBy, limit, offset) => {
     //   const queryJoin = `SELECT
     //   products.id,
     //   products.nameProduct,
@@ -32,8 +32,21 @@ module.exports = {
   getItemProductModel: (id) => {
     return querySQL('SELECT * FROM products WHERE id = ?', id);
   },
-  createNewProductModel: (data) => {
-    return querySQL('INSERT INTO products SET ?', data);
+  createNewProductModel: async(data) => {
+    console.log(data);
+    const images = data.imageProduct;
+    console.log(images);
+    delete data.imageProduct;
+    console.log(data);
+    await querySQL('INSERT INTO products SET ?', data);
+    // console.log(insertData);
+    const insert = images.map((image) => {
+      console.log('item', image);
+      querySQL(
+        `UPDATE products SET imageProduct = '${image}' WHERE idProduct = '${data.idProduct}'`
+      );
+    });
+    return insert;
   },
   updateProductModel: (id, data) => {
     return querySQL('UPDATE products SET ? WHERE id = ?', [data, id]);
@@ -41,7 +54,7 @@ module.exports = {
   deleteProduct: (id) => {
     return querySQL('DELETE FROM products WHERE id = ?', id);
   },
-  searchProductsModel: async (value, limit, table, field, sortBy, offset) => {
+  searchProductsModel: async(value, limit, table, field, sortBy, offset) => {
     // console.log(value, limit, table, field, sortBy);
     // check result count searching
 

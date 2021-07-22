@@ -16,8 +16,10 @@
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "multer": "^1.4.2",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.9",
+    "short-uuid": "^4.2.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
