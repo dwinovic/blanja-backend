@@ -1,5 +1,10 @@
 const { response, srcResponse, pagination, srcFeature } = require('../helpers');
 const UserModel = require('../models/users');
+const short = require('short-uuid');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+// eslint-disable-next-line no-undef
+const privateKey = process.env.PRIVATE_KEY;
 
 module.exports = {
   getAllUsers: async(req, res, next) => {
@@ -69,15 +74,27 @@ module.exports = {
       .catch(next);
   },
   createUser: (req, res, next) => {
-    const { email, password, name, phoneNumber, gender, born } = req.body;
+    const { email, password, name, role, phoneNumber, gender, born } = req.body;
+
+    // Hashing Password
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    // console.log('hash', hash);
+
+    // UUID
+    const newUID = short.generate();
+
     const dataUser = {
+      idUser: newUID,
       email,
-      password,
+      password: hash,
       name,
+      role,
       phoneNumber,
       gender,
       born,
     };
+    // console.log('data user', dataUser);
     // console.log(dataUser);
     UserModel.createUser(dataUser)
       .then(() => {
@@ -117,25 +134,54 @@ module.exports = {
   loginUser: (req, res, next) => {
     const { email, password } = req.body;
     const dataUserLogin = { email, password };
-    console.log(dataUserLogin);
+    // console.log(dataUserLogin);
     UserModel.getUserEmail(dataUserLogin.email)
       .then((result) => {
         const dataUserRes = result[0];
+
+        console.log(dataUserRes);
         let message;
 
+        // Email Validation
         if (!dataUserRes) {
           message = 'Email not found!';
           response(res, 404, {}, message, 'Cannot login');
         }
 
+        // Password Validation
         const { password: passwordResponse } = dataUserRes;
-
-        if (passwordResponse !== password) {
+        // console.log('passwordResponse', passwordResponse);
+        const compareHashPassword = bcrypt.compareSync(
+          password,
+          passwordResponse
+        );
+        if (!compareHashPassword) {
           message = 'Password wrong!';
           response(res, 404, {}, message, 'Cannot login');
         }
 
-        response(res, 200, {}, {}, 'Login success');
+        // JWT Token
+        const token = jwt.sign({
+            email: dataUserRes.email,
+            role: dataUserRes.role,
+            name: dataUserRes.name,
+          },
+          privateKey, { expiresIn: '24h' }
+        );
+
+        const refreshToken = jwt.sign({
+            email: dataUserRes.email,
+            role: dataUserRes.role,
+            name: dataUserRes.name,
+          },
+          privateKey, { expiresIn: '168h' }
+        );
+
+        delete dataUserRes.password;
+        dataUserRes.token = token;
+        dataUserRes.refresh = refreshToken;
+
+        response(res, 200, dataUserRes, {}, 'Login success');
       })
       .catch(next);
   },

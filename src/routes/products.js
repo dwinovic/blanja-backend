@@ -8,20 +8,23 @@ const {
   updateProduct,
   deleteProduct,
 } = require('../controllers/productsController');
+const verifyAccess = require('../middleware/auth');
 
 router
   .get('/', getAllProducts)
   .post(
     '/',
+    verifyAccess,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     createNewProducts
   )
-  .get('/:id', getItemProduct)
+  .get('/:id', verifyAccess, getItemProduct)
   .post(
     '/:id',
+    verifyAccess,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     updateProduct
   )
-  .delete('/:id', deleteProduct);
+  .delete('/:id', verifyAccess, deleteProduct);
 
 module.exports = router;

@@ -70,7 +70,9 @@ module.exports = {
     }
   },
   getItemProduct: (req, res) => {
+    // Request
     const id = req.params.id;
+    // console.log(req.user);
     getItemProductModel(id)
       .then((result) => {
         const product = result;
