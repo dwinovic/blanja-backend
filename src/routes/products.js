@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { uploadMultiple } = require('../middleware/multer');
+const { uploadFile } = require('../middleware/multer');
 const {
   getAllProducts,
   getItemProduct,
@@ -11,9 +11,17 @@ const {
 
 router
   .get('/', getAllProducts)
-  .post('/', uploadMultiple, createNewProducts)
+  .post(
+    '/',
+    (req, res, next) => uploadFile(req, res, next, 'image', 8),
+    createNewProducts
+  )
   .get('/:id', getItemProduct)
-  .post('/:id', updateProduct)
+  .post(
+    '/:id',
+    (req, res, next) => uploadFile(req, res, next, 'image', 8),
+    updateProduct
+  )
   .delete('/:id', deleteProduct);
 
 module.exports = router;

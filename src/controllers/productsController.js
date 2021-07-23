@@ -82,15 +82,17 @@ module.exports = {
   },
   createNewProducts: (req, res) => {
     const { nameProduct, description, id_category, price, stock } = req.body;
-    // console.log('req.file', req.files);
     const dataFilesRequest = req.files;
+    // console.log('dataFilesRequest', dataFilesRequest);
+    // Handle Image convert Array to String
     const images = [];
     dataFilesRequest.forEach((item) => {
       images.push(item.filename);
     });
-    // console.log(images);
-    // console.log('req.body', req.body);
+    const toStr = images.toString();
+    // UID
     const newUid = uid.generate();
+    // Data to insert in DB
     const dataProducts = {
       idProduct: newUid,
       nameProduct,
@@ -98,7 +100,7 @@ module.exports = {
       id_category,
       price,
       stock,
-      imageProduct: images,
+      imageProduct: toStr,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -114,25 +116,35 @@ module.exports = {
       });
   },
   updateProduct: (req, res) => {
+    // Request
     const id = req.params.id;
-    const {
+    const { idProduct, nameProduct, description, id_category, price, stock } =
+    req.body;
+    const dataFilesRequest = req.files;
+
+    // Handle Image convert Array to String
+    const images = [];
+    dataFilesRequest.forEach((item) => {
+      images.push(item.filename);
+    });
+    const toStr = images.toString();
+
+    // Data to update in DB
+    let dataProduct = {
       nameProduct,
       description,
       id_category,
       price,
       stock,
-      imageProduct,
-    } = req.body;
-    const dataProduct = {
-      nameProduct,
-      description,
-      id_category,
-      price,
-      stock,
-      imageProduct,
+      imageProduct: toStr,
       updatedAt: new Date(),
     };
-    // console.log(dataProduct);
+
+    // UID
+    const newUid = uid.generate();
+    if (!idProduct) {
+      dataProduct.idProduct = newUid;
+    }
 
     updateProductModel(id, dataProduct)
       .then(() => {

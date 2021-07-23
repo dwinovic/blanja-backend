@@ -11,8 +11,12 @@ const {
 
 module.exports = {
   createCategory: (req, res) => {
+    // Request
     const { nameCategory } = req.body;
-    const data = { nameCategory };
+    const dataFilesRequest = req.file;
+    const image = dataFilesRequest.filename;
+
+    const data = { nameCategory, image };
     // console.log(data);
     createCategory(data)
       .then(() => {
@@ -42,9 +46,13 @@ module.exports = {
       });
   },
   updateCategory: (req, res) => {
+    // Request
     const { nameCategory } = req.body;
     const id = req.params.id;
-    const newData = { nameCategory, updatedAt: new Date() };
+    const dataFilesRequest = req.file;
+    const image = dataFilesRequest.filename;
+
+    const newData = { nameCategory, image, updatedAt: new Date() };
     updateCategory(id, newData)
       .then(() => {
         response(res, 200);

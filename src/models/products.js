@@ -32,21 +32,8 @@ module.exports = {
   getItemProductModel: (id) => {
     return querySQL('SELECT * FROM products WHERE id = ?', id);
   },
-  createNewProductModel: async(data) => {
-    console.log(data);
-    const images = data.imageProduct;
-    console.log(images);
-    delete data.imageProduct;
-    console.log(data);
-    await querySQL('INSERT INTO products SET ?', data);
-    // console.log(insertData);
-    const insert = images.map((image) => {
-      console.log('item', image);
-      querySQL(
-        `UPDATE products SET imageProduct = '${image}' WHERE idProduct = '${data.idProduct}'`
-      );
-    });
-    return insert;
+  createNewProductModel: (data) => {
+    return querySQL('INSERT INTO products SET ?', data);
   },
   updateProductModel: (id, data) => {
     return querySQL('UPDATE products SET ? WHERE id = ?', [data, id]);
