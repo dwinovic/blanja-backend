@@ -105,13 +105,14 @@ module.exports = {
   updateUser: (req, res, next) => {
     // Request
     const id = req.params.id;
-    const { email, password, name, phoneNumber, gender } = req.body;
+    const { email, password, name, role, phoneNumber, gender } = req.body;
     const dataFilesRequest = req.file;
     const avatar = dataFilesRequest.filename;
     const newData = {
       email,
       password,
       name,
+      role,
       phoneNumber,
       gender,
       imageProfile: avatar,

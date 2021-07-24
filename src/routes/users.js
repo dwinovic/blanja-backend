@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/usersController');
+const { verifyAccess } = require('../middleware/auth');
 const { uploadFile } = require('../middleware/multer');
 
 router
@@ -10,9 +11,10 @@ router
   .get('/:id', userController.getUserId)
   .post(
     '/:id',
+    verifyAccess,
     (req, res, next) => uploadFile(req, res, next, 'image'),
     userController.updateUser
   )
-  .delete('/:id', userController.deleteUser);
+  .delete('/:id', verifyAccess, userController.deleteUser);
 
 module.exports = router;

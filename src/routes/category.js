@@ -1,5 +1,6 @@
 const express = require('express');
 const categoryController = require('../controllers/categoryController');
+const { verifyAccess, superAccess } = require('../middleware/auth');
 const router = express.Router();
 const { uploadFile } = require('../middleware/multer');
 
@@ -15,15 +16,19 @@ router
   .get('/', getAllCategory)
   .post(
     '/',
+    verifyAccess,
+    superAccess,
     (req, res, next) => uploadFile(req, res, next, 'image'),
     createCategory
   )
-  .get('/:id', getItemCategory)
+  .get('/:id', verifyAccess, superAccess, getItemCategory)
   .post(
     '/:id',
+    verifyAccess,
+    superAccess,
     (req, res, next) => uploadFile(req, res, next, 'image'),
     updateCategory
   )
-  .delete('/:id', deleteCategory);
+  .delete('/:id', verifyAccess, superAccess, deleteCategory);
 
 module.exports = router;

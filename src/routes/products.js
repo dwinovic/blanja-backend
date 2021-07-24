@@ -8,23 +8,29 @@ const {
   updateProduct,
   deleteProduct,
 } = require('../controllers/productsController');
-const verifyAccess = require('../middleware/auth');
+const { verifyAccess, superAccess } = require('../middleware/auth');
+const {
+  hitCacheProductId,
+  hitCacheAllProducts,
+} = require('../middleware/redis');
 
 router
-  .get('/', getAllProducts)
+  .get('/', hitCacheAllProducts, getAllProducts)
   .post(
     '/',
     verifyAccess,
+    superAccess,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     createNewProducts
   )
-  .get('/:id', verifyAccess, getItemProduct)
+  .get('/:id', verifyAccess, hitCacheProductId, getItemProduct)
   .post(
     '/:id',
     verifyAccess,
+    superAccess,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     updateProduct
   )
-  .delete('/:id', verifyAccess, deleteProduct);
+  .delete('/:id', verifyAccess, superAccess, deleteProduct);
 
 module.exports = router;

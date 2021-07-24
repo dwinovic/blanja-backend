@@ -35,4 +35,16 @@ const verifyAccess = (req, res, next) => {
   }
 };
 
-module.exports = verifyAccess;
+const superAccess = (req, res, next) => {
+  // Role User
+  const role = req.user.role;
+
+  if (role !== 'admin') {
+    const message = new Error(`Your account does'nt have access`);
+    message.status = 401;
+    next(message);
+  }
+  next();
+};
+
+module.exports = { verifyAccess, superAccess };

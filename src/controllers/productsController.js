@@ -1,5 +1,7 @@
 const { response, srcResponse, srcFeature, pagination } = require('../helpers');
 const uidshort = require('short-uuid');
+const redis = require('redis');
+const client = redis.createClient();
 
 const {
   searchProductsModel,
@@ -44,6 +46,10 @@ module.exports = {
           // console.log(error);
           srcResponse(res, 404, meta, {}, error, error);
         } else {
+          // SET CACHE IN REDIS
+          const setCache = { meta, data };
+          client.setex('allproducts', 60 * 60, JSON.stringify(setCache));
+
           srcResponse(res, 200, meta, data);
         }
       }
@@ -61,6 +67,10 @@ module.exports = {
               error.message
             );
           } else {
+            // SET CACHE IN REDIS
+            const setCache = { meta, data };
+            client.setex('allproducts', 60 * 60, JSON.stringify(setCache));
+
             srcResponse(res, 200, meta, data, {});
           }
         });
@@ -76,6 +86,7 @@ module.exports = {
     getItemProductModel(id)
       .then((result) => {
         const product = result;
+        client.setex(`product/${id}`, 60 * 60, JSON.stringify(product));
         response(res, 200, product);
       })
       .catch((err) => {
@@ -96,7 +107,7 @@ module.exports = {
     const newUid = uid.generate();
     // Data to insert in DB
     const dataProducts = {
-      idProduct: newUid,
+      id: newUid,
       nameProduct,
       description,
       id_category,
@@ -120,8 +131,7 @@ module.exports = {
   updateProduct: (req, res) => {
     // Request
     const id = req.params.id;
-    const { idProduct, nameProduct, description, id_category, price, stock } =
-    req.body;
+    const { nameProduct, description, id_category, price, stock } = req.body;
     const dataFilesRequest = req.files;
 
     // Handle Image convert Array to String
@@ -144,8 +154,8 @@ module.exports = {
 
     // UID
     const newUid = uid.generate();
-    if (!idProduct) {
-      dataProduct.idProduct = newUid;
+    if (typeof id !== 'string') {
+      dataProduct.id = newUid;
     }
 
     updateProductModel(id, dataProduct)
