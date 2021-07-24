@@ -16,10 +16,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fieldSize: maxSize },
   fileFilter: function(req, file, cb) {
     checkFileType(file, cb);
   },
+  limits: { fieldSize: maxSize },
 });
 
 // Error Handling Upload File

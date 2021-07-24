@@ -106,11 +106,16 @@ module.exports = {
     // Request
     const id = req.params.id;
     const { email, password, name, role, phoneNumber, gender } = req.body;
+
+    // Hashing Password
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+
     const dataFilesRequest = req.file;
     const avatar = dataFilesRequest.filename;
     const newData = {
       email,
-      password,
+      password: hash,
       name,
       role,
       phoneNumber,
@@ -135,7 +140,7 @@ module.exports = {
   loginUser: (req, res, next) => {
     const { email, password } = req.body;
     const dataUserLogin = { email, password };
-    // console.log(dataUserLogin);
+    console.log(dataUserLogin);
     UserModel.getUserEmail(dataUserLogin.email)
       .then((result) => {
         const dataUserRes = result[0];
