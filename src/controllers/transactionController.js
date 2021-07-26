@@ -85,7 +85,7 @@ module.exports = {
   },
   getItemTransaction: (req, res) => {
     const idTransaction = req.params.id;
-    console.log(idTransaction);
+    // console.log(idTransaction);
     getItemTransaction(idTransaction)
       .then((result) => {
         response(res, 200, result);
@@ -110,7 +110,7 @@ module.exports = {
     };
 
     createTransaction(data)
-      .then((result) => {
+      .then(() => {
         response(res, 200, {}, {}, 'Success add transaction');
       })
       .catch(next);
@@ -128,7 +128,7 @@ module.exports = {
     };
 
     updateTransaction(id, updateItemTransaction)
-      .then((result) => {
+      .then(() => {
         // console.log(result);
         response(res, 200, {}, {}, 'Success updated transaction');
       })

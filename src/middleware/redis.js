@@ -37,8 +37,16 @@ const clearRedisProduct = (req, res, next) => {
   next();
 };
 
+// DELETE CACHE PRODUCTS BY ID
+const clearRedisProductById = (req, res, next) => {
+  const id = req.params.id;
+  client.del(`product/${id}`);
+  next();
+};
+
 module.exports = {
   hitCacheProductId,
   hitCacheAllProducts,
   clearRedisProduct,
+  clearRedisProductById,
 };

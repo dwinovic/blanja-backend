@@ -133,7 +133,7 @@ module.exports = {
     const id = req.params.id;
     const { nameProduct, description, id_category, price, stock } = req.body;
     const dataFilesRequest = req.files;
-    console.log('dataFilesRequest', dataFilesRequest);
+    // console.log('dataFilesRequest', dataFilesRequest);
 
     // Handle Image convert Array to String
     const images = [];

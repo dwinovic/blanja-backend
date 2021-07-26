@@ -39,7 +39,7 @@ const uploadFile = (req, res, next, field, maxCount) => {
     });
   } else {
     multipleUpload(req, res, (err) => {
-      console.log('req multipleUpload', req.files);
+      // console.log('req multipleUpload', req.files);
       if (err instanceof multer.MulterError) {
         console.log('instanceof', err);
       } else if (err) {

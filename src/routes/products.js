@@ -12,6 +12,8 @@ const { verifyAccess, superAccess } = require('../middleware/auth');
 const {
   hitCacheProductId,
   hitCacheAllProducts,
+  clearRedisProduct,
+  clearRedisProductById,
 } = require('../middleware/redis');
 
 router
@@ -20,6 +22,7 @@ router
     '/',
     verifyAccess,
     superAccess,
+    clearRedisProduct,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     createNewProducts
   )
@@ -28,6 +31,7 @@ router
     '/:id',
     verifyAccess,
     superAccess,
+    clearRedisProductById,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     updateProduct
   )

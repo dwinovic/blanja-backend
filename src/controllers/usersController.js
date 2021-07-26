@@ -140,12 +140,12 @@ module.exports = {
   loginUser: (req, res, next) => {
     const { email, password } = req.body;
     const dataUserLogin = { email, password };
-    console.log(dataUserLogin);
+    // console.log(dataUserLogin);
     UserModel.getUserEmail(dataUserLogin.email)
       .then((result) => {
         const dataUserRes = result[0];
 
-        console.log(dataUserRes);
+        // console.log(dataUserRes);
         let message;
 
         // Email Validation
