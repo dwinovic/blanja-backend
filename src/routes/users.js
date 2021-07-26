@@ -8,7 +8,7 @@ router
   .get('/', userController.getAllUsers)
   .post('/register', userController.createUser)
   .post('/login', userController.loginUser)
-  .get('/:id', userController.getUserId)
+  .get('/:id', verifyAccess, userController.getUserId)
   .post(
     '/:id',
     verifyAccess,

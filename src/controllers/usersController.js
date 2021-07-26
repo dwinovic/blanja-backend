@@ -95,6 +95,7 @@ module.exports = {
       phoneNumber,
       gender,
       born,
+      updatedAt: new Date(),
     };
     // console.log('data user', dataUser);
     // console.log(dataUser);
@@ -104,7 +105,7 @@ module.exports = {
       })
       .catch(next);
   },
-  updateUser: (req, res, next) => {
+  updateUser: async(req, res, next) => {
     // Request
     const id = req.params.id;
     const { email, password, name, role, phoneNumber, gender } = req.body;
@@ -125,18 +126,36 @@ module.exports = {
       imageProfile: avatar,
       updatedAt: new Date(),
     };
+
+    // OLD Images
+    const oldAvatar = await UserModel.getUserId(id)
+      .then((result) => {
+        const data = result[0].imageProfile;
+        return data;
+      })
+      .catch(next);
+    // console.log(oldAvatar);
+
     UserModel.updateUser(id, newData)
-      .then(() => {
+      .then(async() => {
+        try {
+          await fs.unlinkSync(`public/images/${oldAvatar}`);
+          console.log(`successfully deleted ${oldAvatar}`);
+        } catch (err) {
+          console.error('there was an error:', err.message);
+        }
+
         response(res, 200);
       })
       .catch(async(err) => {
         try {
           await fs.unlinkSync(`public/images/${avatar}`);
           // console.log(`successfully deleted ${image}`);
-        } catch (error) {
+        } catch (err) {
           // console.error('there was an error:', error.message);
-          next(error);
+          next();
         }
+
         next(err);
       });
   },
