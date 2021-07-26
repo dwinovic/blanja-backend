@@ -2,6 +2,7 @@ const { response, srcResponse, srcFeature, pagination } = require('../helpers');
 const uidshort = require('short-uuid');
 const redis = require('redis');
 const client = redis.createClient();
+const fs = require('fs');
 
 const {
   searchProductsModel,
@@ -125,10 +126,18 @@ module.exports = {
         response(res, 200);
       })
       .catch((err) => {
+        try {
+          dataFilesRequest.forEach(async(item) => {
+            await fs.unlinkSync(`public/images/${item.filename}`);
+          });
+          // console.log(`successfully deleted ${image}`);
+        } catch (error) {
+          // console.error('there was an error:', error.message);
+        }
         response(res, 500, {}, err);
       });
   },
-  updateProduct: (req, res) => {
+  updateProduct: async(req, res) => {
     // Request
     const id = req.params.id;
     const { nameProduct, description, id_category, price, stock } = req.body;
@@ -159,9 +168,31 @@ module.exports = {
       dataProduct.id = newUid;
     }
 
+    // GET OLD IMAGE NAME
+    let dataImageOld = await getItemProductModel(id)
+      .then((result) => {
+        const imageResponse = result[0].imageProduct;
+        const imageArray = imageResponse.split(',');
+        return imageArray;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    // UPDATE PRODUCTS
+    console.log('dataImageOld', dataImageOld);
     updateProductModel(id, dataProduct)
       .then(() => {
-        // console.log(result);
+        // Delete old images
+        dataImageOld.forEach(async(image) => {
+          try {
+            await fs.unlinkSync(`public/images/${image}`);
+            // console.log(`successfully deleted ${image}`);
+          } catch (error) {
+            // console.error('there was an error:', error.message);
+          }
+        });
+
         response(res, 200, dataProduct);
       })
       .catch((err) => {

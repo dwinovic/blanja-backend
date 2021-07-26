@@ -3,6 +3,8 @@ const UserModel = require('../models/users');
 const short = require('short-uuid');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+
 // eslint-disable-next-line no-undef
 const privateKey = process.env.PRIVATE_KEY;
 
@@ -100,7 +102,7 @@ module.exports = {
       .then(() => {
         response(res, 200);
       })
-      .then(next);
+      .catch(next);
   },
   updateUser: (req, res, next) => {
     // Request
@@ -127,7 +129,16 @@ module.exports = {
       .then(() => {
         response(res, 200);
       })
-      .catch(next);
+      .catch(async(err) => {
+        try {
+          await fs.unlinkSync(`public/images/${avatar}`);
+          // console.log(`successfully deleted ${image}`);
+        } catch (error) {
+          // console.error('there was an error:', error.message);
+          next(error);
+        }
+        next(err);
+      });
   },
   deleteUser: (req, res, next) => {
     const id = req.params.id;
