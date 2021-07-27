@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const short = require('short-uuid');
 const maxSize = 1024 * 1024 * 1;
+const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -19,7 +20,7 @@ const upload = multer({
   fileFilter: function(req, file, cb) {
     checkFileType(file, cb);
   },
-  limits: { fieldSize: maxSize },
+  limits: { fieldSize: maxSize }, // does'nt work!!!
 });
 
 // Error Handling Upload File
@@ -35,7 +36,9 @@ const uploadFile = (req, res, next, field, maxCount) => {
         message.status = 405;
         next(message);
       }
-      next();
+      LimitationSize(req, next);
+
+      // next();
     });
   } else {
     multipleUpload(req, res, (err) => {
@@ -48,7 +51,9 @@ const uploadFile = (req, res, next, field, maxCount) => {
         message.status = 405;
         next(message);
       }
-      next();
+      console.log('multipleUpload', req.files);
+      LimitationSize(req, next);
+      // next();
     });
   }
 };
@@ -74,6 +79,43 @@ const checkFileType = (file, cb) => {
   } else {
     cb('Error: Images Only !!!');
   }
+};
+
+const LimitationSize = async(req, next) => {
+  const filesRequest = req.file || req.files;
+  let dataFileSize = [];
+
+  if (Array.isArray(filesRequest)) {
+    // If request is multiple
+    filesRequest.forEach((image) => {
+      dataFileSize.push({
+        name: image.filename,
+        size: image.size,
+      });
+    });
+  } else {
+    // Request is single
+    dataFileSize.push({
+      name: filesRequest.filename,
+      size: filesRequest.size,
+    });
+  }
+
+  dataFileSize.forEach((item) => {
+    // Failed
+    // console.log('item size', item.name, item.size);
+    // console.log(maxSize);
+    if (item.size > maxSize) {
+      dataFileSize.forEach(async(item) => {
+        await fs.unlinkSync(`public/images/${item.name}`);
+      });
+      let message = new Error('Ukuran file melebihi batas. Maksimal 2 mb');
+      message.status = 400;
+      next(message);
+    }
+  });
+
+  next();
 };
 
 module.exports = { uploadFile };
