@@ -4,6 +4,7 @@ const short = require('short-uuid');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
+const verifiedEmail = require('../helpers/verifiedEmail');
 
 // eslint-disable-next-line no-undef
 const privateKey = process.env.PRIVATE_KEY;
@@ -101,6 +102,18 @@ module.exports = {
     // console.log(dataUser);
     UserModel.createUser(dataUser)
       .then(() => {
+        const email = 'cahyaulin@gmail.com';
+        // JWT Token
+        const token = jwt.sign({
+            id: dataUser.idUser,
+            email: dataUser.email,
+            role: dataUser.role,
+            name: dataUser.name,
+            status: false,
+          },
+          privateKey, { expiresIn: '24h' }
+        );
+        verifiedEmail(email, dataUser.name, token);
         response(res, 200);
       })
       .catch(next);
@@ -108,7 +121,8 @@ module.exports = {
   updateUser: async(req, res, next) => {
     // Request
     const id = req.params.id;
-    const { email, password, name, role, phoneNumber, gender } = req.body;
+    const { email, password, name, role, phoneNumber, gender, verified } =
+    req.body;
 
     // Hashing Password
     const salt = bcrypt.genSaltSync(10);
@@ -121,6 +135,7 @@ module.exports = {
       password: hash,
       name,
       role,
+      verified,
       phoneNumber,
       gender,
       imageProfile: avatar,
@@ -200,7 +215,7 @@ module.exports = {
             role: dataUserRes.role,
             name: dataUserRes.name,
           },
-          privateKey, { expiresIn: '24h' }
+          privateKey, { expiresIn: '12h' }
         );
 
         const refreshToken = jwt.sign({
@@ -208,7 +223,7 @@ module.exports = {
             role: dataUserRes.role,
             name: dataUserRes.name,
           },
-          privateKey, { expiresIn: '168h' }
+          privateKey, { expiresIn: `${24 * 7}h` }
         );
 
         delete dataUserRes.password;
