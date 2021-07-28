@@ -1,16 +1,18 @@
-const express = require('express')
+const express = require('express');
 const {
   createItemTransaction,
   getAllTransaction,
-  updateItemTransaction
-} = require('../controllers/transactionController')
-const router = express.Router()
+  updateItemTransaction,
+  getItemTransaction,
+} = require('../controllers/transactionController');
+const { verifyAccess, superAccess } = require('../middleware/auth');
+const router = express.Router();
 
 router
-  .get('/', getAllTransaction)
-  .post('/', createItemTransaction)
-  .get('/:id')
-  .post('/:id', updateItemTransaction)
-  .delete('/:id')
+  .get('/', verifyAccess, superAccess, getAllTransaction)
+  .post('/', verifyAccess, superAccess, createItemTransaction)
+  .get('/:id', verifyAccess, superAccess, getItemTransaction)
+  .post('/:id', updateItemTransaction, verifyAccess, superAccess)
+  .delete('/:id');
 
-module.exports = router
+module.exports = router;

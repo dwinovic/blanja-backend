@@ -1,4 +1,9 @@
 const { response, srcResponse, srcFeature, pagination } = require('../helpers');
+const uidshort = require('short-uuid');
+const redis = require('redis');
+const client = redis.createClient();
+const fs = require('fs');
+
 const {
   searchProductsModel,
   getAllProductsModel,
@@ -8,11 +13,14 @@ const {
   updateProductModel,
 } = require('../models/products');
 
+const uid = uidshort();
+
 module.exports = {
-  getAllProducts: async (req, res, next) => {
+  getAllProducts: async(req, res, next) => {
     try {
       // PAGINATION
-      if (!req.query.src && !req.query.category) {
+
+      if (!req.query.src) {
         const result = await pagination(req, res, next, getAllProductsModel);
         // console.log(Object.keys(result));
         const {
@@ -40,6 +48,10 @@ module.exports = {
           // console.log(error);
           srcResponse(res, 404, meta, {}, error, error);
         } else {
+          // SET CACHE IN REDIS
+          const setCache = { meta, data };
+          client.setex('allproducts', 60 * 60, JSON.stringify(setCache));
+
           srcResponse(res, 200, meta, data);
         }
       }
@@ -52,12 +64,15 @@ module.exports = {
             srcResponse(
               res,
               error.statusCode,
-              meta,
-              {},
+              meta, {},
               error.message,
               error.message
             );
           } else {
+            // SET CACHE IN REDIS
+            const setCache = { meta, data };
+            client.setex('allproducts', 60 * 60, JSON.stringify(setCache));
+
             srcResponse(res, 200, meta, data, {});
           }
         });
@@ -67,10 +82,14 @@ module.exports = {
     }
   },
   getItemProduct: (req, res) => {
+    // Request
     const id = req.params.id;
+    // console.log(req.user);
     getItemProductModel(id)
       .then((result) => {
-        const product = result; 
+        const product = result;
+        client.setex(`product/${id}`, 60 * 60, JSON.stringify(product));
+
         response(res, 200, product);
       })
       .catch((err) => {
@@ -78,58 +97,105 @@ module.exports = {
       });
   },
   createNewProducts: (req, res) => {
-    const {
-      nameProduct,
-      description,
-      id_category,
-      price,
-      stock,
-      imageProduct,
-    } = req.body;
+    const { nameProduct, description, id_category, price, stock } = req.body;
+    const dataFilesRequest = req.files;
+    // console.log('dataFilesRequest', dataFilesRequest);
+    // Handle Image convert Array to String
+    const images = [];
+    dataFilesRequest.forEach((item) => {
+      images.push(item.filename);
+    });
+    const toStr = images.toString();
+    // UID
+    const newUid = uid.generate();
+    // Data to insert in DB
+
     const dataProducts = {
+      id: newUid,
       nameProduct,
       description,
       id_category,
       price,
       stock,
-      imageProduct,
+      imageProduct: toStr,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
     // console.log(dataProducts);
     createNewProductModel(dataProducts)
-      .then((result) => {
+      .then(() => {
         // console.log(result);
         response(res, 200);
       })
       .catch((err) => {
+        try {
+          dataFilesRequest.forEach(async(item) => {
+            await fs.unlinkSync(`public/images/${item.filename}`);
+          });
+          // console.log(`successfully deleted ${image}`);
+        } catch (error) {
+          // console.error('there was an error:', error.message);
+        }
         response(res, 500, {}, err);
       });
   },
-  updateProduct: (req, res) => {
+  updateProduct: async(req, res) => {
+    // Request
     const id = req.params.id;
-    const {
+    const { nameProduct, description, id_category, price, stock } = req.body;
+    const dataFilesRequest = req.files;
+    // console.log('dataFilesRequest', dataFilesRequest);
+
+    // Handle Image convert Array to String
+    const images = [];
+    dataFilesRequest.forEach((item) => {
+      images.push(item.filename);
+    });
+    const toStr = images.toString();
+
+    // Data to update in DB
+    let dataProduct = {
       nameProduct,
       description,
       id_category,
       price,
       stock,
-      imageProduct,
-    } = req.body;
-    const dataProduct = {
-      nameProduct,
-      description,
-      id_category,
-      price,
-      stock,
-      imageProduct,
+      imageProduct: toStr,
       updatedAt: new Date(),
     };
-    // console.log(dataProduct);
 
-    updateProductModel(id, dataProduct)
+    // UID
+    const newUid = uid.generate();
+    if (typeof id !== 'string') {
+      dataProduct.id = newUid;
+    }
+
+    // GET OLD IMAGE NAME
+    let dataImageOld = await getItemProductModel(id)
       .then((result) => {
-        // console.log(result);
+        const imageResponse = result[0].imageProduct;
+        const imageArray = imageResponse.split(',');
+        return imageArray;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    // UPDATE PRODUCTS
+    // console.log('dataImageOld', dataImageOld);
+    updateProductModel(id, dataProduct)
+      .then(() => {
+        // Delete old images
+        dataImageOld.forEach(async(image) => {
+          try {
+            await fs.unlinkSync(`public/images/${image}`);
+            // console.log(`successfully deleted ${image}`);
+          } catch (error) {
+            // console.error('there was an error:', error.message);
+          }
+        });
+
         response(res, 200, dataProduct);
       })
       .catch((err) => {
@@ -139,7 +205,7 @@ module.exports = {
   deleteProduct: (req, res) => {
     const id = req.params.id;
     deleteProduct(id)
-      .then((result) => {
+      .then(() => {
         // console.log(result);
         response(res, 200);
       })

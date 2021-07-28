@@ -1,11 +1,18 @@
 const { response, srcResponse, pagination, srcFeature } = require('../helpers');
 const UserModel = require('../models/users');
+const short = require('short-uuid');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const fs = require('fs');
+
+// eslint-disable-next-line no-undef
+const privateKey = process.env.PRIVATE_KEY;
 
 module.exports = {
-  getAllUsers: async (req, res, next) => {
+  getAllUsers: async(req, res, next) => {
     try {
       // PAGINATION
-      if (!req.query.src && !req.query.category) {
+      if (!req.query.src) {
         const result = await pagination(req, res, next, UserModel.getAllUsers);
         // console.log(Object.keys(result));
         const {
@@ -46,8 +53,7 @@ module.exports = {
             srcResponse(
               res,
               error.statusCode,
-              meta,
-              {},
+              meta, {},
               error.message,
               error.message
             );
@@ -70,38 +76,88 @@ module.exports = {
       .catch(next);
   },
   createUser: (req, res, next) => {
-    const { email, password, name, phoneNumber, gender, born } = req.body;
+    const { email, password, name, role, phoneNumber, gender, born } = req.body;
+
+    // Hashing Password
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    // console.log('hash', hash);
+
+    // UUID
+    const newUID = short.generate();
+
     const dataUser = {
+      idUser: newUID,
       email,
-      password,
+      password: hash,
       name,
+      role,
       phoneNumber,
       gender,
       born,
+      updatedAt: new Date(),
     };
+    // console.log('data user', dataUser);
     // console.log(dataUser);
     UserModel.createUser(dataUser)
       .then(() => {
         response(res, 200);
       })
-      .then(next);
+      .catch(next);
   },
-  updateUser: (req, res, next) => {
+  updateUser: async(req, res, next) => {
+    // Request
     const id = req.params.id;
-    const { email, password, name, phoneNumber, gender } = req.body;
+    const { email, password, name, role, phoneNumber, gender } = req.body;
+
+    // Hashing Password
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+
+    const dataFilesRequest = req.file;
+    const avatar = dataFilesRequest.filename;
     const newData = {
       email,
-      password,
+      password: hash,
       name,
+      role,
       phoneNumber,
       gender,
+      imageProfile: avatar,
       updatedAt: new Date(),
     };
-    UserModel.updateUser(id, newData)
-      .then(() => {
-        response(res, 200);
+
+    // OLD Images
+    const oldAvatar = await UserModel.getUserId(id)
+      .then((result) => {
+        const data = result[0].imageProfile;
+        return data;
       })
       .catch(next);
+    // console.log(oldAvatar);
+
+    UserModel.updateUser(id, newData)
+      .then(async() => {
+        try {
+          await fs.unlinkSync(`public/images/${oldAvatar}`);
+          console.log(`successfully deleted ${oldAvatar}`);
+        } catch (err) {
+          console.error('there was an error:', err.message);
+        }
+
+        response(res, 200);
+      })
+      .catch(async(err) => {
+        try {
+          await fs.unlinkSync(`public/images/${avatar}`);
+          // console.log(`successfully deleted ${image}`);
+        } catch (err) {
+          // console.error('there was an error:', error.message);
+          next();
+        }
+
+        next(err);
+      });
   },
   deleteUser: (req, res, next) => {
     const id = req.params.id;
@@ -114,25 +170,52 @@ module.exports = {
   loginUser: (req, res, next) => {
     const { email, password } = req.body;
     const dataUserLogin = { email, password };
-    // console.log(dataUserLogin)
+    // console.log(dataUserLogin);
     UserModel.getUserEmail(dataUserLogin.email)
       .then((result) => {
         const dataUserRes = result[0];
+
+        // console.log(dataUserRes);
         let message;
 
+        // Email Validation
         if (!dataUserRes) {
           message = 'Email not found!';
           response(res, 404, {}, message, 'Cannot login');
         }
-
+        // Password Validation
         const { password: passwordResponse } = dataUserRes;
-
-        if (passwordResponse !== password) {
+        // console.log('passwordResponse', passwordResponse);
+        const compareHashPassword = bcrypt.compareSync(
+          password,
+          passwordResponse
+        );
+        if (!compareHashPassword) {
           message = 'Password wrong!';
           response(res, 404, {}, message, 'Cannot login');
         }
+        // JWT Token
+        const token = jwt.sign({
+            email: dataUserRes.email,
+            role: dataUserRes.role,
+            name: dataUserRes.name,
+          },
+          privateKey, { expiresIn: '24h' }
+        );
 
-        response(res, 200, {}, {}, 'Login success');
+        const refreshToken = jwt.sign({
+            email: dataUserRes.email,
+            role: dataUserRes.role,
+            name: dataUserRes.name,
+          },
+          privateKey, { expiresIn: '168h' }
+        );
+
+        delete dataUserRes.password;
+        dataUserRes.token = token;
+        dataUserRes.refresh = refreshToken;
+
+        response(res, 200, dataUserRes, {}, 'Login success');
       })
       .catch(next);
   },

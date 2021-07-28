@@ -11,11 +11,15 @@ const {
 
 module.exports = {
   createCategory: (req, res) => {
-    const { nameCategory, image } = req.body;
+    // Request
+    const { nameCategory } = req.body;
+    const dataFilesRequest = req.file;
+    const image = dataFilesRequest.filename;
+
     const data = { nameCategory, image };
     // console.log(data);
     createCategory(data)
-      .then((result) => {
+      .then(() => {
         response(res, 200, data);
       })
       .catch((err) => {
@@ -42,11 +46,15 @@ module.exports = {
       });
   },
   updateCategory: (req, res) => {
+    // Request
     const { nameCategory } = req.body;
     const id = req.params.id;
-    const newData = { nameCategory, updatedAt: new Date() };
+    const dataFilesRequest = req.file;
+    const image = dataFilesRequest.filename;
+
+    const newData = { nameCategory, image, updatedAt: new Date() };
     updateCategory(id, newData)
-      .then((result) => {
+      .then(() => {
         response(res, 200);
       })
       .catch((err) => {
@@ -56,7 +64,7 @@ module.exports = {
   deleteCategory: (req, res) => {
     const id = req.params.id;
     deleteCategory(id)
-      .then((result) => {
+      .then(() => {
         response(res, 200);
       })
       .catch((err) => {

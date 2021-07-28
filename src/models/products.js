@@ -1,23 +1,21 @@
 const querySQL = require('../helpers/querySql');
 
 module.exports = {
-  getAllProductsModel: async (field, sortBy, limit, offset, category) => {
-    const queryJoin = `SELECT
-      products.id,
-      products.nameProduct,
-      category.nameCategory,
-      products.description,
-      products.price,
-      products.stock,
-      products.imageProduct,
-      products.createdAt,
-      products.updatedAt
-    FROM products
-      INNER JOIN category
-        ON products.id_category=category.id`;
-    // const queryJoin = `SELECT * FROM products`;
-    const querySelectByCategory = `WHERE products.id_category = ${category},
-      `;
+  getAllProductsModel: async(field, sortBy, limit, offset) => {
+    //   const queryJoin = `SELECT
+    //   products.id,
+    //   products.nameProduct,
+    //   category.nameCategory,
+    //   products.description,
+    //   products.price,
+    //   products.stock,
+    //   products.imageProduct,
+    //   products.createdAt,
+    //   products.updatedAt
+    // FROM products
+    //   INNER JOIN category
+    //     ON products.id_category=category.id`;
+    const queryJoin = `SELECT * FROM products`;
 
     const countDataInRows = await querySQL('SELECT COUNT(*) FROM products');
 
@@ -45,7 +43,8 @@ module.exports = {
   deleteProduct: (id) => {
     return querySQL('DELETE FROM products WHERE id = ?', id);
   },
-  searchProductsModel: async (
+
+  searchProductsModel: async(
     value,
     limit,
     table,
