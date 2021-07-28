@@ -8,7 +8,7 @@ const {
   updateProduct,
   deleteProduct,
 } = require('../controllers/productsController');
-const { verifyAccess, superAccess } = require('../middleware/auth');
+const { verifyAccess, sellerAccess } = require('../middleware/auth');
 const {
   hitCacheProductId,
   hitCacheAllProducts,
@@ -21,7 +21,7 @@ router
   .post(
     '/',
     verifyAccess,
-    superAccess,
+    sellerAccess,
     clearRedisProduct,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     createNewProducts
@@ -30,11 +30,17 @@ router
   .post(
     '/:id',
     verifyAccess,
-    superAccess,
+    sellerAccess,
     clearRedisProductById,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     updateProduct
   )
-  .delete('/:id', verifyAccess, superAccess, deleteProduct);
+  .delete(
+    '/:id',
+    verifyAccess,
+    sellerAccess,
+    clearRedisProductById,
+    deleteProduct
+  );
 
 module.exports = router;

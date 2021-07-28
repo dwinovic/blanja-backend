@@ -32,7 +32,7 @@ module.exports = {
   getItemProductModel: (id) => {
     const queryJoin = `SELECT * FROM products`;
 
-    return querySQL(`${queryJoin} WHERE id = ${id}`);
+    return querySQL(`${queryJoin} WHERE id = '${id}'`);
   },
   createNewProductModel: (data) => {
     return querySQL('INSERT INTO products SET ?', data);

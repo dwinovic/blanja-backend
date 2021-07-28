@@ -88,6 +88,7 @@ module.exports = {
     getItemProductModel(id)
       .then((result) => {
         const product = result;
+        // console.log(product);
         client.setex(`product/${id}`, 60 * 60, JSON.stringify(product));
 
         response(res, 200, product);

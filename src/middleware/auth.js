@@ -40,11 +40,25 @@ const superAccess = (req, res, next) => {
   const role = req.user.role;
 
   if (role !== 'admin') {
-    const message = new Error(`Your account does'nt have access`);
+    const message = new Error(
+      `Your account does'nt have access! Super admin only!`
+    );
     message.status = 401;
     next(message);
   }
   next();
 };
 
-module.exports = { verifyAccess, superAccess };
+const sellerAccess = (req, res, next) => {
+  // Role User
+  const role = req.user.role;
+
+  if (role !== 'seller' && role !== 'admin') {
+    const message = new Error(`Your account does'nt have access! Seller only`);
+    message.status = 401;
+    next(message);
+  }
+  next();
+};
+
+module.exports = { verifyAccess, superAccess, sellerAccess };
