@@ -17,7 +17,7 @@ app.use(cors());
 
 // api routes
 app.use('/v1', routes);
-app.use('/file', express.static('./public/images'));
+app.use('/files', express.static('./public/images'));
 
 app.use((err, req, res, next) => {
   errorHandling(err, req, res, next);

@@ -36,7 +36,7 @@ const uploadFile = (req, res, next, field, maxCount) => {
         message.status = 405;
         next(message);
       }
-      LimitationSize(req, next);
+      limitationSize(req, next);
 
       // next();
     });
@@ -51,8 +51,8 @@ const uploadFile = (req, res, next, field, maxCount) => {
         message.status = 405;
         next(message);
       }
-      console.log('multipleUpload', req.files);
-      LimitationSize(req, next);
+      // console.log('multipleUpload', req.files);
+      limitationSize(req, next);
       // next();
     });
   }
@@ -81,7 +81,7 @@ const checkFileType = (file, cb) => {
   }
 };
 
-const LimitationSize = async(req, next) => {
+const limitationSize = async(req, next) => {
   const filesRequest = req.file || req.files;
   let dataFileSize = [];
 

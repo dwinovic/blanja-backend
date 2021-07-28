@@ -180,7 +180,7 @@ module.exports = {
       });
 
     // UPDATE PRODUCTS
-    console.log('dataImageOld', dataImageOld);
+    // console.log('dataImageOld', dataImageOld);
     updateProductModel(id, dataProduct)
       .then(() => {
         // Delete old images
