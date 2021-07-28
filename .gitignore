@@ -1,6 +1,6 @@
 # Ignore the node_modules directory
 node_modules/ 
-public/images/
+#public/images/
 
 
 # The file containing environment variables 
