@@ -12,7 +12,7 @@ router
   .post(
     '/:id',
     verifyAccess,
-    (req, res, next) => uploadFile(req, res, next, 'image'),
+    (req, res, next) => uploadFile(req, res, next, 'imageProfile'),
     userController.updateUser
   )
   .post('/change-password/:emailUser', userController.getUserByEmail)

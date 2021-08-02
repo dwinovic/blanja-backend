@@ -174,6 +174,7 @@ module.exports = {
       gender,
       verified,
       storeName,
+      imageProfile,
     } = req.body;
     console.log(2, req.body);
 
@@ -182,7 +183,8 @@ module.exports = {
     const hash = bcrypt.hashSync(password, salt);
 
     const dataFilesRequest = req.file;
-    const avatar = dataFilesRequest.filename;
+    console.log('req.file', req.file);
+    const avatar = dataFilesRequest?.filename || 'user-default.png';
     const newData = {
       email,
       password: hash,
@@ -192,7 +194,7 @@ module.exports = {
       phoneNumber,
       gender,
       storeName,
-      imageProfile: avatar,
+      imageProfile: imageProfile ? imageProfile : avatar,
       updatedAt: new Date(),
     };
 

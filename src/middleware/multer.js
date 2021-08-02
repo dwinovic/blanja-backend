@@ -28,7 +28,7 @@ const uploadFile = (req, res, next, field, maxCount) => {
   const singleUpload = upload.single(field);
   const multipleUpload = upload.array(field, maxCount);
   if (!maxCount) {
-    singleUpload(req, res, (err) => {
+    singleUpload(req, res, next, (err) => {
       if (err instanceof multer.MulterError) {
         console.log('instanceof', err);
       } else if (err) {
@@ -36,8 +36,8 @@ const uploadFile = (req, res, next, field, maxCount) => {
         message.status = 405;
         next(message);
       }
+      // console.log('req.file', req.file);
       limitationSize(req, next);
-
       // next();
     });
   } else {
@@ -45,8 +45,8 @@ const uploadFile = (req, res, next, field, maxCount) => {
       // console.log('req multipleUpload', req.files);
       if (err instanceof multer.MulterError) {
         console.log('instanceof', err);
+        // console.log('req.files', req.files);
       } else if (err) {
-        // console.log('err', err);
         const message = new Error(err);
         message.status = 405;
         next(message);
