@@ -54,6 +54,7 @@ const pagination = async (req, res, next, model) => {
         data.limit = limit > countRows ? rows : limit;
         data.totalData = rows;
         data.data = dataResult;
+
         data.totalPage = rows > limit ? rows / limit : 1;
       })
       .catch(next);
@@ -76,6 +77,18 @@ const pagination = async (req, res, next, model) => {
 
   // RESPONSE TO CONTROLLER
   data.sortBy = `${queryField} ${querySort}`;
+
+  // Image Condition - Only return one image
+  const getDataResult = data.data;
+  // console.log(getDataResult);
+  getDataResult.forEach((item) => {
+    const getImageResponse = item.imageProduct;
+    if (getImageResponse) {
+      const parseToArray = getImageResponse.split(',').shift();
+      item.imageProduct = parseToArray;
+    }
+  });
+  // console.log('getDataResult', getDataResult);
   return data;
 };
 

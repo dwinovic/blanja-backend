@@ -15,6 +15,7 @@ router
     (req, res, next) => uploadFile(req, res, next, 'image'),
     userController.updateUser
   )
+  .post('/change-password/:emailUser', userController.getUserByEmail)
   .delete('/:id', verifyAccess, superAccess, userController.deleteUser);
 
 module.exports = router;

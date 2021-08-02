@@ -16,7 +16,7 @@ const {
 const uid = uidshort();
 
 module.exports = {
-  getAllProducts: async(req, res, next) => {
+  getAllProducts: async (req, res, next) => {
     try {
       // PAGINATION
 
@@ -33,7 +33,11 @@ module.exports = {
           sortBy,
         } = result;
 
-        // console.log(1, totalPage);
+        // Image Condition - Only return one image
+        // const getAllImage = data.imageProduct;
+        // delete data.imageProduct;
+        // const parseToArray = getAllImage;
+        // console.log('parseToArray', data);
 
         const meta = {
           currentPage,
@@ -49,8 +53,9 @@ module.exports = {
           srcResponse(res, 404, meta, {}, error, error);
         } else {
           // SET CACHE IN REDIS
-          const setCache = { meta, data };
-          client.setex('allproducts', 60 * 60, JSON.stringify(setCache));
+          // const setCache = { meta, data };
+          // console.log(data);
+          // client.setex('allproducts', 60 * 60, JSON.stringify(setCache));
 
           srcResponse(res, 200, meta, data);
         }
@@ -64,7 +69,8 @@ module.exports = {
             srcResponse(
               res,
               error.statusCode,
-              meta, {},
+              meta,
+              {},
               error.message,
               error.message
             );
@@ -131,7 +137,7 @@ module.exports = {
       })
       .catch((err) => {
         try {
-          dataFilesRequest.forEach(async(item) => {
+          dataFilesRequest.forEach(async (item) => {
             await fs.unlinkSync(`public/images/${item.filename}`);
           });
           // console.log(`successfully deleted ${image}`);
@@ -141,7 +147,7 @@ module.exports = {
         response(res, 500, {}, err);
       });
   },
-  updateProduct: async(req, res) => {
+  updateProduct: async (req, res) => {
     // Request
     const id = req.params.id;
     const { nameProduct, description, id_category, price, stock } = req.body;
@@ -188,7 +194,7 @@ module.exports = {
     updateProductModel(id, dataProduct)
       .then(() => {
         // Delete old images
-        dataImageOld.forEach(async(image) => {
+        dataImageOld.forEach(async (image) => {
           try {
             await fs.unlinkSync(`public/images/${image}`);
             // console.log(`successfully deleted ${image}`);

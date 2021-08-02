@@ -1,6 +1,6 @@
 const { querySQL } = require('../helpers');
 module.exports = {
-  getAllUsers: async(field, sortBy, limit, offset) => {
+  getAllUsers: async (field, sortBy, limit, offset) => {
     const querySelectAll = 'SELECT * FROM users';
 
     const countDataInRows = await querySQL('SELECT COUNT(*) FROM users');
@@ -17,7 +17,7 @@ module.exports = {
 
     return { countRows, result: queryAll };
   },
-  searchUsers: async(value, limit, table, field, sortBy, offset) => {
+  searchUsers: async (value, limit, table, field, sortBy, offset) => {
     // console.log(value, limit, table, field, sortBy);
     // check result count searching
 
@@ -74,6 +74,7 @@ module.exports = {
   getUserId: (idUser) => {
     return querySQL('SELECT * FROM users WHERE idUser = ?', idUser);
   },
+
   createUser: (data) => {
     return querySQL('INSERT INTO users SET ?', data);
   },

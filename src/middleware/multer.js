@@ -5,10 +5,10 @@ const maxSize = 1024 * 1024 * 1;
 const fs = require('fs');
 
 const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     cb(null, 'public/images');
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     const uid = short();
     const newUid = uid.generate();
     cb(null, `${newUid}-${file.originalname}`);
@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  fileFilter: function(req, file, cb) {
+  fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },
   limits: { fieldSize: maxSize }, // does'nt work!!!
@@ -77,11 +77,11 @@ const checkFileType = (file, cb) => {
   if (mimeType && extName) {
     return cb(null, true);
   } else {
-    cb('Error: Images Only !!!');
+    cb('Error: Images Only! Extentions type must be jpeg | jpg | png | gif');
   }
 };
 
-const limitationSize = async(req, next) => {
+const limitationSize = async (req, next) => {
   const filesRequest = req.file || req.files;
   let dataFileSize = [];
 
@@ -106,7 +106,7 @@ const limitationSize = async(req, next) => {
     // console.log('item size', item.name, item.size);
     // console.log(maxSize);
     if (item.size > maxSize) {
-      dataFileSize.forEach(async(item) => {
+      dataFileSize.forEach(async (item) => {
         await fs.unlinkSync(`public/images/${item.name}`);
       });
       let message = new Error('Ukuran file melebihi batas. Maksimal 2 mb');

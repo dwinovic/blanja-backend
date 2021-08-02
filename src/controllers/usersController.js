@@ -1,4 +1,10 @@
-const { response, srcResponse, pagination, srcFeature } = require('../helpers');
+const {
+  response,
+  srcResponse,
+  pagination,
+  srcFeature,
+  requestNewPasswordVerification,
+} = require('../helpers');
 const UserModel = require('../models/users');
 const short = require('short-uuid');
 const jwt = require('jsonwebtoken');
@@ -10,7 +16,7 @@ const verifiedEmail = require('../helpers/verifiedEmail');
 const privateKey = process.env.PRIVATE_KEY;
 
 module.exports = {
-  getAllUsers: async(req, res, next) => {
+  getAllUsers: async (req, res, next) => {
     try {
       // PAGINATION
       if (!req.query.src) {
@@ -54,7 +60,8 @@ module.exports = {
             srcResponse(
               res,
               error.statusCode,
-              meta, {},
+              meta,
+              {},
               error.message,
               error.message
             );
@@ -76,8 +83,42 @@ module.exports = {
       })
       .catch(next);
   },
+  getUserByEmail: (req, res, next) => {
+    const email = req.params.emailUser;
+    UserModel.getUserEmail(email)
+      .then((result) => {
+        if (result.length === 0) {
+          const message = 'Account not found!';
+          response(res, 404, {}, message, 'Failed');
+        }
+        const data = result[0];
+        const token = jwt.sign(
+          {
+            id: data.idUser,
+            email: data.email,
+            role: data.role,
+            name: data.name,
+            verified: data.verified,
+          },
+          privateKey,
+          { expiresIn: '8h' }
+        );
+        requestNewPasswordVerification(email, data.name, token);
+        response(res, 200, 'Email verification have been send');
+      })
+      .catch(next);
+  },
   createUser: (req, res, next) => {
-    const { email, password, name, role, phoneNumber, gender, born } = req.body;
+    const {
+      email,
+      password,
+      name,
+      role,
+      phoneNumber,
+      gender,
+      born,
+      storeName,
+    } = req.body;
 
     // Hashing Password
     const salt = bcrypt.genSaltSync(10);
@@ -96,33 +137,45 @@ module.exports = {
       phoneNumber,
       gender,
       born,
+      storeName,
       updatedAt: new Date(),
     };
     // console.log('data user', dataUser);
     // console.log(dataUser);
     UserModel.createUser(dataUser)
       .then(() => {
-        const email = 'cahyaulin@gmail.com';
+        // const email = 'cahyaulin@gmail.com';
         // JWT Token
-        const token = jwt.sign({
+        const token = jwt.sign(
+          {
             id: dataUser.idUser,
             email: dataUser.email,
             role: dataUser.role,
             name: dataUser.name,
-            status: false,
+            verified: 0,
           },
-          privateKey, { expiresIn: '24h' }
+          privateKey,
+          { expiresIn: '24h' }
         );
-        verifiedEmail(email, dataUser.name, token);
+        verifiedEmail(dataUser.email, dataUser.name, token);
         response(res, 200);
       })
       .catch(next);
   },
-  updateUser: async(req, res, next) => {
+  updateUser: async (req, res, next) => {
     // Request
     const id = req.params.id;
-    const { email, password, name, role, phoneNumber, gender, verified } =
-    req.body;
+    const {
+      email,
+      password,
+      name,
+      role,
+      phoneNumber,
+      gender,
+      verified,
+      storeName,
+    } = req.body;
+    console.log(2, req.body);
 
     // Hashing Password
     const salt = bcrypt.genSaltSync(10);
@@ -138,6 +191,7 @@ module.exports = {
       verified,
       phoneNumber,
       gender,
+      storeName,
       imageProfile: avatar,
       updatedAt: new Date(),
     };
@@ -152,7 +206,7 @@ module.exports = {
     // console.log(oldAvatar);
 
     UserModel.updateUser(id, newData)
-      .then(async() => {
+      .then(async () => {
         try {
           await fs.unlinkSync(`public/images/${oldAvatar}`);
           console.log(`successfully deleted ${oldAvatar}`);
@@ -162,7 +216,7 @@ module.exports = {
 
         response(res, 200);
       })
-      .catch(async(err) => {
+      .catch(async (err) => {
         try {
           await fs.unlinkSync(`public/images/${avatar}`);
           // console.log(`successfully deleted ${image}`);
@@ -195,7 +249,7 @@ module.exports = {
 
         // Email Validation
         if (!dataUserRes) {
-          message = 'Email not found!';
+          message = 'Account not found!';
           response(res, 404, {}, message, 'Cannot login');
         }
         // Password Validation
@@ -210,20 +264,24 @@ module.exports = {
           response(res, 404, {}, message, 'Cannot login');
         }
         // JWT Token
-        const token = jwt.sign({
+        const token = jwt.sign(
+          {
             email: dataUserRes.email,
             role: dataUserRes.role,
             name: dataUserRes.name,
           },
-          privateKey, { expiresIn: '12h' }
+          privateKey,
+          { expiresIn: '12h' }
         );
 
-        const refreshToken = jwt.sign({
+        const refreshToken = jwt.sign(
+          {
             email: dataUserRes.email,
             role: dataUserRes.role,
             name: dataUserRes.name,
           },
-          privateKey, { expiresIn: `${24 * 7}h` }
+          privateKey,
+          { expiresIn: `${24 * 7}h` }
         );
 
         delete dataUserRes.password;
