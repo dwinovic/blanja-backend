@@ -108,6 +108,14 @@ module.exports = {
       })
       .catch(next);
   },
+  verifyTokenUser: (req, res) => {
+    const decodeResult = req.user;
+    UserModel.getUserEmail(decodeResult.email).then((result) => {
+      const dataResult = result[0];
+      delete dataResult.password;
+      response(res, 200, dataResult);
+    });
+  },
   createUser: (req, res, next) => {
     const {
       email,
@@ -135,6 +143,7 @@ module.exports = {
       name,
       role,
       phoneNumber,
+      imageProfile: 'user-default.png',
       gender,
       born,
       storeName,
@@ -176,18 +185,17 @@ module.exports = {
       storeName,
       imageProfile,
     } = req.body;
-    console.log(2, req.body);
+    // console.log(2, req.body);
 
     // Hashing Password
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
+    // const salt = bcrypt.genSaltSync(10);
+    // const hash = bcrypt.hashSync(password, salt);
 
     const dataFilesRequest = req.file;
-    console.log('req.file', req.file);
     const avatar = dataFilesRequest?.filename || 'user-default.png';
     const newData = {
       email,
-      password: hash,
+      password,
       name,
       role,
       verified,
@@ -210,8 +218,13 @@ module.exports = {
     UserModel.updateUser(id, newData)
       .then(async () => {
         try {
-          await fs.unlinkSync(`public/images/${oldAvatar}`);
-          console.log(`successfully deleted ${oldAvatar}`);
+          if (oldAvatar === 'user-default.png') {
+            return null;
+          }
+          const getAvatarName = oldAvatar.split('/')[4];
+
+          await fs.unlinkSync(`public/images/${getAvatarName}`);
+          console.log(`successfully deleted ${getAvatarName}`);
         } catch (err) {
           console.error('there was an error:', err.message);
         }

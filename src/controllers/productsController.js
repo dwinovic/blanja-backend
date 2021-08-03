@@ -108,9 +108,12 @@ module.exports = {
     const dataFilesRequest = req.files;
     // console.log('dataFilesRequest', dataFilesRequest);
     // Handle Image convert Array to String
+    // eslint-disable-next-line no-undef
+    const locationImage = `${process.env.HOST_SERVER}/files/`;
+
     const images = [];
     dataFilesRequest.forEach((item) => {
-      images.push(item.filename);
+      images.push(locationImage + item.filename);
     });
     const toStr = images.toString();
     // UID
@@ -155,9 +158,12 @@ module.exports = {
     // console.log('dataFilesRequest', dataFilesRequest);
 
     // Handle Image convert Array to String
+    // eslint-disable-next-line no-undef
+    const locationImage = `${process.env.HOST_SERVER}/files/`;
+
     const images = [];
     dataFilesRequest.forEach((item) => {
-      images.push(item.filename);
+      images.push(locationImage + item.filename);
     });
     const toStr = images.toString();
 
@@ -196,7 +202,8 @@ module.exports = {
         // Delete old images
         dataImageOld.forEach(async (image) => {
           try {
-            await fs.unlinkSync(`public/images/${image}`);
+            const getImageName = image.split('/')[4];
+            await fs.unlinkSync(`public/images/${getImageName}`);
             // console.log(`successfully deleted ${image}`);
           } catch (error) {
             // console.error('there was an error:', error.message);

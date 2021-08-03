@@ -6,6 +6,7 @@ const { uploadFile } = require('../middleware/multer');
 
 router
   .get('/', verifyAccess, superAccess, userController.getAllUsers)
+  .get('/verify-token', verifyAccess, userController.verifyTokenUser)
   .post('/register', userController.createUser)
   .post('/login', userController.loginUser)
   .get('/:id', verifyAccess, userController.getUserId)
@@ -16,6 +17,7 @@ router
     userController.updateUser
   )
   .post('/change-password/:emailUser', userController.getUserByEmail)
+
   .delete('/:id', verifyAccess, superAccess, userController.deleteUser);
 
 module.exports = router;

@@ -1,6 +1,5 @@
 const bodyMail = (token, nameTo) => {
-  return `
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
   <html data-editor-version="2" class="sg-campaigns" xmlns="http://www.w3.org/1999/xhtml">
   
   <head>
@@ -281,7 +280,7 @@ const bodyMail = (token, nameTo) => {
                                                                         for
                                                                         signing
                                                                         up,
-                                                                        ${nameTo}!&nbsp;</span
+                                                                        ${nameTo}&nbsp;</span
                                                                       >
                                                                     </div>
                                                                     <div></div>
@@ -334,8 +333,14 @@ const bodyMail = (token, nameTo) => {
                                                                         >Please
                                                                         verify
                                                                         your email
-                                                                        address
-                                                                        to</span
+                                                                        address to
+                                                                        get access
+                                                                        to
+                                                                        thousands
+                                                                        of
+                                                                        features
+                                                                        in
+                                                                        Blanja.com.</span
                                                                       ><span
                                                                         style="
                                                                           color: #000000;
@@ -344,13 +349,7 @@ const bodyMail = (token, nameTo) => {
                                                                             helvetica,
                                                                             sans-serif;
                                                                         "
-                                                                      >
-                                                                        get access
-                                                                        to
-                                                                        thousands
-                                                                        of
-                                                                        features
-                                                                        in Blanja.com</span
+                                                                      ></span
                                                                       ><span
                                                                         style="
                                                                           font-size: 18px;
@@ -366,7 +365,7 @@ const bodyMail = (token, nameTo) => {
                                                                     >
                                                                       <span
                                                                         style="
-                                                                          color: #ffbe00;
+                                                                          color: #db3022;
                                                                           font-size: 18px;
                                                                         "
                                                                         ><strong
@@ -447,7 +446,7 @@ const bodyMail = (token, nameTo) => {
                                                                       <tr>
                                                                         <td
                                                                           align="center"
-                                                                          bgcolor="#ffbe00"
+                                                                          bgcolor="#DB3022"
                                                                           class="
                                                                             inner-td
                                                                           "
@@ -458,17 +457,17 @@ const bodyMail = (token, nameTo) => {
                                                                             background-color: inherit;
                                                                           "
                                                                         >
-                                                                          <a
-                                                                            href='https://www.google.com/${token}'
+                                                                          <a 
+                                                                            href='${process.env.HOST_CLIENT}/users-verified/${token}'
                                                                             style="
-                                                                              background-color: #ffbe00;
+                                                                              background-color: #db3022;
                                                                               border: 1px
                                                                                 solid
-                                                                                #ffbe00;
-                                                                              border-color: #ffbe00;
+                                                                                #db3022;
+                                                                              border-color: #db3022;
                                                                               border-radius: 0px;
                                                                               border-width: 1px;
-                                                                              color: #000000;
+                                                                              color: #ffffff;
                                                                               display: inline-block;
                                                                               font-size: 14px;
                                                                               font-weight: normal;
@@ -484,7 +483,7 @@ const bodyMail = (token, nameTo) => {
                                                                               font-family: inherit;
                                                                             "
                                                                             target="_blank"
-                                                                            >Verify
+                                                                            >Verifi
                                                                             Email
                                                                             Now</a
                                                                           >
@@ -607,7 +606,7 @@ const bodyMail = (token, nameTo) => {
                                                   line-height: 20px;
                                                 "
                                               >
-                                              Dwinovic | CEO of Blanja.com
+                                                CEO Blanja.com
                                               </p>
                                               <p
                                                 style="
@@ -619,19 +618,19 @@ const bodyMail = (token, nameTo) => {
                                                   class="
                                                     Unsubscribe--senderAddress
                                                   "
-                                                  >Madiun Regency Empire</span
+                                                  >Mangga Region</span
                                                 >,
                                                 <span
                                                   class="Unsubscribe--senderCity"
-                                                  >Madiun Kingston</span
+                                                  >Madiun</span
                                                 >,
                                                 <span
                                                   class="Unsubscribe--senderState"
-                                                  >East Madiun</span
+                                                  >East Java</span
                                                 >
                                                 <span
                                                   class="Unsubscribe--senderZip"
-                                                  >1991</span
+                                                  >8656</span
                                                 >
                                               </p>
                                             </div>
@@ -690,51 +689,7 @@ const bodyMail = (token, nameTo) => {
                                                     cellspacing="0"
                                                     class="wrapper-mobile"
                                                     style="text-align: center"
-                                                  >
-                                                    <tbody>
-                                                      <tr>
-                                                        <td
-                                                          align="center"
-                                                          bgcolor="#f5f8fd"
-                                                          class="inner-td"
-                                                          style="
-                                                            border-radius: 6px;
-                                                            font-size: 16px;
-                                                            text-align: center;
-                                                            background-color: inherit;
-                                                          "
-                                                        >
-                                                          <a
-                                                            href="https://sendgrid.com/"
-                                                            style="
-                                                              background-color: #f5f8fd;
-                                                              border: 1px solid
-                                                                #f5f8fd;
-                                                              border-color: #f5f8fd;
-                                                              border-radius: 25px;
-                                                              border-width: 1px;
-                                                              color: #a8b9d5;
-                                                              display: inline-block;
-                                                              font-size: 10px;
-                                                              font-weight: normal;
-                                                              letter-spacing: 0px;
-                                                              line-height: normal;
-                                                              padding: 5px 18px
-                                                                5px 18px;
-                                                              text-align: center;
-                                                              text-decoration: none;
-                                                              border-style: solid;
-                                                              font-family: helvetica,
-                                                                sans-serif;
-                                                            "
-                                                            target="_blank"
-                                                            >♥ POWERED BY TWILIO
-                                                            SENDGRID</a
-                                                          >
-                                                        </td>
-                                                      </tr>
-                                                    </tbody>
-                                                  </table>
+                                                  ></table>
                                                 </td>
                                               </tr>
                                             </tbody>
@@ -764,8 +719,7 @@ const bodyMail = (token, nameTo) => {
         </div>
       </center>
     </body>
-  </html>
-  `;
+  </html>`;
 };
 
 module.exports = bodyMail;

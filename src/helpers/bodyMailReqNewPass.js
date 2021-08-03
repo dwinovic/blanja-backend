@@ -464,7 +464,7 @@ const bodyMailReqNewPass = (token, nameTo, emailTo) => {
                                                                         "
                                                                       >
                                                                         <a
-                                                                          href='http://localhost:3000/forgot-password/${token}'
+                                                                          href='${process.env.HOST_CLIENT}/forgot-password/${token}'
                                                                           style="
                                                                             background-color: #db3022;
                                                                             border: 1px
