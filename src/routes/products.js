@@ -10,12 +10,12 @@ const {
   deleteProduct,
 } = require('../controllers/productsController');
 const { verifyAccess, sellerAccess } = require('../middleware/auth');
-const {
-  hitCacheProductId,
-  // hitCacheAllProducts,
-  clearRedisProduct,
-  clearRedisProductById,
-} = require('../middleware/redis');
+// const {
+//   hitCacheProductId,
+//   // hitCacheAllProducts,
+//   clearRedisProduct,
+//   clearRedisProductById,
+// } = require('../middleware/redis');
 
 router
   .get('/', getAllProducts)
@@ -23,17 +23,22 @@ router
     '/',
     verifyAccess,
     sellerAccess,
-    clearRedisProduct,
+    // clearRedisProduct,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     createNewProducts
   )
   .get('/seller/:id', verifyAccess, getSellerProduct)
-  .get('/:id', verifyAccess, hitCacheProductId, getItemProduct)
+  .get(
+    '/:id',
+    verifyAccess,
+    // hitCacheProductId,
+    getItemProduct
+  )
   .post(
     '/:id',
     verifyAccess,
     sellerAccess,
-    clearRedisProductById,
+    // clearRedisProductById,
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     updateProduct
   )
@@ -41,7 +46,7 @@ router
     '/:id',
     verifyAccess,
     sellerAccess,
-    clearRedisProductById,
+    // clearRedisProductById,
     deleteProduct
   );
 
