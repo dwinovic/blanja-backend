@@ -4,6 +4,7 @@ const { uploadFile } = require('../middleware/multer');
 const {
   getAllProducts,
   getItemProduct,
+  getSellerProduct,
   createNewProducts,
   updateProduct,
   deleteProduct,
@@ -11,13 +12,13 @@ const {
 const { verifyAccess, sellerAccess } = require('../middleware/auth');
 const {
   hitCacheProductId,
-  hitCacheAllProducts,
+  // hitCacheAllProducts,
   clearRedisProduct,
   clearRedisProductById,
 } = require('../middleware/redis');
 
 router
-  .get('/', hitCacheAllProducts, getAllProducts)
+  .get('/', getAllProducts)
   .post(
     '/',
     verifyAccess,
@@ -26,6 +27,7 @@ router
     (req, res, next) => uploadFile(req, res, next, 'image', 8),
     createNewProducts
   )
+  .get('/seller/:id', verifyAccess, getSellerProduct)
   .get('/:id', verifyAccess, hitCacheProductId, getItemProduct)
   .post(
     '/:id',

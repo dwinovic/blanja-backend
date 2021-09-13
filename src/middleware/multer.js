@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const uid = short();
     const newUid = uid.generate();
-    cb(null, `${newUid}-${file.originalname}`);
+    cb(null, `${newUid}.jpg`);
   },
 });
 
@@ -27,6 +27,7 @@ const upload = multer({
 const uploadFile = (req, res, next, field, maxCount) => {
   const singleUpload = upload.single(field);
   const multipleUpload = upload.array(field, maxCount);
+
   if (!maxCount) {
     singleUpload(req, res, next, (err) => {
       if (err instanceof multer.MulterError) {
@@ -103,7 +104,7 @@ const limitationSize = async (req, next) => {
 
   dataFileSize.forEach((item) => {
     // Failed
-    // console.log('item size', item.name, item.size);
+    console.log('item size', item.name, item.size);
     // console.log(maxSize);
     if (item.size > maxSize) {
       dataFileSize.forEach(async (item) => {

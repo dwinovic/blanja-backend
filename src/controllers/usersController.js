@@ -99,6 +99,7 @@ module.exports = {
             role: data.role,
             name: data.name,
             verified: data.verified,
+            image: data.image,
           },
           privateKey,
           { expiresIn: '8h' }
@@ -112,21 +113,12 @@ module.exports = {
     const decodeResult = req.user;
     UserModel.getUserEmail(decodeResult.email).then((result) => {
       const dataResult = result[0];
-      delete dataResult.password;
+      // delete dataResult.password;
       response(res, 200, dataResult);
     });
   },
   createUser: (req, res, next) => {
-    const {
-      email,
-      password,
-      name,
-      role,
-      phoneNumber,
-      gender,
-      born,
-      storeName,
-    } = req.body;
+    const { email, password, name, role, phoneNumber, storeName } = req.body;
 
     // Hashing Password
     const salt = bcrypt.genSaltSync(10);
@@ -143,9 +135,8 @@ module.exports = {
       name,
       role,
       phoneNumber,
-      imageProfile: 'user-default.png',
-      gender,
-      born,
+      // eslint-disable-next-line no-undef
+      image: null,
       storeName,
       updatedAt: new Date(),
     };
@@ -183,53 +174,66 @@ module.exports = {
       gender,
       verified,
       storeName,
-      imageProfile,
+      image: imageRequest,
     } = req.body;
-    // console.log(2, req.body);
 
     // Hashing Password
-    // const salt = bcrypt.genSaltSync(10);
-    // const hash = bcrypt.hashSync(password, salt);
+    let hash;
+    if (password.length > 20) {
+      hash = password;
+    } else {
+      const salt = bcrypt.genSaltSync(10);
+      hash = bcrypt.hashSync(password, salt);
+    }
 
     const dataFilesRequest = req.file;
-    const avatar = dataFilesRequest?.filename || 'user-default.png';
+    const avatar = dataFilesRequest
+      ? // eslint-disable-next-line no-undef
+        `${process.env.HOST_SERVER}/files/${dataFilesRequest.filename}`
+      : 'user-default.png';
+
     const newData = {
       email,
-      password,
+      password: hash,
       name,
       role,
       verified,
       phoneNumber,
       gender,
       storeName,
-      imageProfile: imageProfile ? imageProfile : avatar,
+      image: imageRequest ? imageRequest : avatar,
       updatedAt: new Date(),
     };
 
     // OLD Images
     const oldAvatar = await UserModel.getUserId(id)
       .then((result) => {
-        const data = result[0].imageProfile;
+        const data = result[0].image;
         return data;
       })
-      .catch(next);
-    // console.log(oldAvatar);
+      .catch((err) => {
+        console.log(err);
+      });
+    // console.log(newData);
 
     UserModel.updateUser(id, newData)
       .then(async () => {
         try {
-          if (oldAvatar === 'user-default.png') {
-            return null;
+          if (
+            // eslint-disable-next-line no-undef
+            oldAvatar === `${process.env.HOST_SERVER}/files/user-default.png`
+          ) {
+            response(res, 200);
+          } else if (dataFilesRequest) {
+            const getAvatarName = oldAvatar.split('/')[4];
+            await fs.unlinkSync(`public/images/${getAvatarName}`);
+            console.log(`successfully deleted ${getAvatarName}`);
           }
-          const getAvatarName = oldAvatar.split('/')[4];
-
-          await fs.unlinkSync(`public/images/${getAvatarName}`);
-          console.log(`successfully deleted ${getAvatarName}`);
         } catch (err) {
           console.error('there was an error:', err.message);
         }
 
-        response(res, 200);
+        response(res, 200, newData);
       })
       .catch(async (err) => {
         try {

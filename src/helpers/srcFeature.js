@@ -1,12 +1,13 @@
 const srcFeature = async (req, res, next, model) => {
   const querySrc = req.query.src || '';
   const queryLimit = parseInt(req.query.limit);
-  const queryTables = req.baseUrl.substring(1);
+  const queryTables = req.baseUrl.split('/').pop();
+  // const queryTables = req.baseUrl.substring(1);
   const querySort = req.query.sort || 'DESC';
   const queryPage = req.query.page || 1;
   const queryField = req.query.field || 'updatedAt';
   const categoryQuery = req.query.category || '';
-  console.log(categoryQuery);
+  // console.log(querySrc);
 
   const limit = queryLimit || 8;
 
@@ -27,12 +28,19 @@ const srcFeature = async (req, res, next, model) => {
     categoryQuery
   )
     .then((result) => {
-      // console.log(result);
       // res.status(200).json(result);
       // return;
 
-      const { totalData, limit, data, totalPage, statusCode, errorMessage } =
-        result;
+      const {
+        totalData,
+        limit,
+        data,
+        totalPage,
+        statusCode,
+        errorMessage,
+        lastPage,
+      } = result;
+      console.log(lastPage);
       // totalPage
 
       dataResponse.meta = {
@@ -49,10 +57,12 @@ const srcFeature = async (req, res, next, model) => {
         statusCode,
         message: errorMessage,
       };
-      // console.log(dataResponse);
+      // console.log('dataResponse', dataResponse);
       res.result = dataResponse;
     })
-    .catch(next);
+    .catch((err) => {
+      console.log(err);
+    });
   next();
 };
 

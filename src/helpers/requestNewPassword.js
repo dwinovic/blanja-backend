@@ -21,7 +21,7 @@ const requestNewPassword = (emailTo, nameTo, token) => {
       html: bodyMailReqNewPass(token, nameTo, emailTo), // html body
     })
     .then((res) => {
-      console.log(res);
+      // console.log(res);
     })
     .catch((err) => {
       console.log(err);

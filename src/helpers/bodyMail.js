@@ -483,7 +483,7 @@ const bodyMail = (token, nameTo) => {
                                                                               font-family: inherit;
                                                                             "
                                                                             target="_blank"
-                                                                            >Verifi
+                                                                            >Verify
                                                                             Email
                                                                             Now</a
                                                                           >

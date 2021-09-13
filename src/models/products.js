@@ -1,7 +1,7 @@
 const querySQL = require('../helpers/querySql');
 
 module.exports = {
-  getAllProductsModel: async(field, sortBy, limit, offset) => {
+  getAllProductsModel: async (field, sortBy, limit, offset) => {
     //   const queryJoin = `SELECT
     //   products.id,
     //   products.nameProduct,
@@ -34,6 +34,11 @@ module.exports = {
 
     return querySQL(`${queryJoin} WHERE id = '${id}'`);
   },
+  getSellerProductModel: (id) => {
+    const queryJoin = `SELECT * FROM products`;
+
+    return querySQL(`${queryJoin} WHERE owner = '${id}'`);
+  },
   createNewProductModel: (data) => {
     return querySQL('INSERT INTO products SET ?', data);
   },
@@ -44,7 +49,7 @@ module.exports = {
     return querySQL('DELETE FROM products WHERE id = ?', id);
   },
 
-  searchProductsModel: async(
+  searchProductsModel: async (
     value,
     limit,
     table,
@@ -60,11 +65,10 @@ module.exports = {
     // WITH QUERY EXPANSION
 
     // `SELECT COUNT(*) from ${table} WHERE MATCH(nameProduct, description) AGAINST(${value} WITH QUERY EXPANSION)`
-
     const getCountRows = await querySQL(
       `SELECT COUNT(*) FROM ${table} WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%'`
     );
-    // console.log(getCountRows);
+    // console.log(2, getCountRows);
     const dataCountRows = getCountRows[0];
     const numDataCountRows = Object.values(dataCountRows)[0];
     // console.log(numDataCountRows);
@@ -80,6 +84,8 @@ module.exports = {
         value ? querySearching : ''
       } ORDER BY ${field} ${sortBy} LIMIT ${limit} OFFSET ${offset}`
     );
+    // console.log('offset', offset);
+    const lastPage = offset;
 
     // totalPage
     const totalPageBefore = numDataCountRows / limit; // 2.374
@@ -92,12 +98,6 @@ module.exports = {
     } else {
       totalPageAfter = parseInt(convertMin);
     }
-    // console.log(totalPageAfter);
-
-    // console.log(1, totalPageBefore);
-    // console.log(2, convertMin);
-    // console.log(3, convertMax);
-    // console.log(4, totalPageAfter);
 
     const dataResponse = {
       totalData: numDataCountRows,
@@ -110,7 +110,10 @@ module.exports = {
     if (limitResult.length === 0) {
       dataResponse.statusCode = 404;
       dataResponse.errorMessage = 'Page not found';
+      dataResponse.lastPage = lastPage / limit - 1;
     }
+    console.log(dataResponse);
+
     return dataResponse;
   },
 };

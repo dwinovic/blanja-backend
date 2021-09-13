@@ -9,6 +9,7 @@ const {
   getAllProductsModel,
   deleteProduct,
   getItemProductModel,
+  getSellerProductModel,
   createNewProductModel,
   updateProductModel,
 } = require('../models/products');
@@ -33,6 +34,8 @@ module.exports = {
           sortBy,
         } = result;
 
+        // console.log(result);
+        // return;
         // Image Condition - Only return one image
         // const getAllImage = data.imageProduct;
         // delete data.imageProduct;
@@ -93,9 +96,24 @@ module.exports = {
     // console.log(req.user);
     getItemProductModel(id)
       .then((result) => {
+        const product = result[0];
+        const images = product.imageProduct.split(',');
+        product.imageProduct = images;
+
+        // console.log(1234, product);
+        response(res, 200, product);
+        // client.setex(`product/${id}`, 60 * 60, JSON.stringify(product));
+      })
+      .catch((err) => {
+        response(res, 500, {}, err);
+      });
+  },
+  getSellerProduct: (req, res) => {
+    const id = req.params.id;
+    getSellerProductModel(id)
+      .then((result) => {
         const product = result;
         // console.log(product);
-        client.setex(`product/${id}`, 60 * 60, JSON.stringify(product));
 
         response(res, 200, product);
       })
@@ -104,7 +122,15 @@ module.exports = {
       });
   },
   createNewProducts: (req, res) => {
-    const { nameProduct, description, id_category, price, stock } = req.body;
+    const {
+      nameProduct,
+      description,
+      id_category,
+      price,
+      stock,
+      owner,
+      color,
+    } = req.body;
     const dataFilesRequest = req.files;
     // console.log('dataFilesRequest', dataFilesRequest);
     // Handle Image convert Array to String
@@ -127,6 +153,8 @@ module.exports = {
       id_category,
       price,
       stock,
+      owner,
+      color,
       imageProduct: toStr,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -136,7 +164,7 @@ module.exports = {
     createNewProductModel(dataProducts)
       .then(() => {
         // console.log(result);
-        response(res, 200);
+        response(res, 200, dataProducts);
       })
       .catch((err) => {
         try {
