@@ -3,7 +3,7 @@ const express = require('express');
 const routes = require('./src/routes');
 const cors = require('cors');
 const { errorHandling } = require('./src/middleware');
-
+const morgan = require('morgan');
 const app = express();
 // eslint-disable-next-line no-undef
 const PORT = process.env.PORT;
@@ -12,6 +12,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(morgan('dev'));
 // CORS
 app.use(cors());
 
