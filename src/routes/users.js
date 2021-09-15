@@ -7,6 +7,7 @@ const { uploadFile } = require('../middleware/multer');
 router
   .get('/', verifyAccess, superAccess, userController.getAllUsers)
   .get('/verify-token', verifyAccess, userController.verifyTokenUser)
+  .get('/address/:idUser', verifyAccess, userController.verifyTokenUser)
   .post('/register', userController.createUser)
   .post('/login', userController.loginUser)
   .get('/:id', verifyAccess, userController.getUserId)

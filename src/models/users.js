@@ -74,7 +74,6 @@ module.exports = {
   getUserId: (idUser) => {
     return querySQL('SELECT * FROM users WHERE idUser = ?', idUser);
   },
-
   createUser: (data) => {
     return querySQL('INSERT INTO users SET ?', data);
   },
@@ -86,5 +85,8 @@ module.exports = {
   },
   getUserEmail: (email) => {
     return querySQL('SELECT * FROM users WHERE email LIKE ?', email);
+  },
+  getUserAddress: (idUSer) => {
+    return querySQL('SELECT * FROM address WHERE id_user LIKE ?', idUSer);
   },
 };
