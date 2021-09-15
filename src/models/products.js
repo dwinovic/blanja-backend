@@ -66,7 +66,7 @@ module.exports = {
 
     // `SELECT COUNT(*) from ${table} WHERE MATCH(nameProduct, description) AGAINST(${value} WITH QUERY EXPANSION)`
     const getCountRows = await querySQL(
-      `SELECT COUNT(*) FROM ${table} WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%'`
+      `SELECT COUNT(*) FROM ${table} WHERE nameProduct LIKE '%${value}%'`
     );
     // console.log(2, getCountRows);
     const dataCountRows = getCountRows[0];
@@ -74,11 +74,11 @@ module.exports = {
     // console.log(numDataCountRows);
     // console.log(typeof offset);
 
-    const queryByCategory = `WHERE category.nameCategory LIKE '%${category}%'`;
-    const querySearching = `WHERE nameProduct LIKE '%${value}%' OR description LIKE '%${value}%' OR nameCategory LIKE '%${value}%'`;
+    const queryByCategory = `WHERE products.id_category LIKE '%${category}%'`;
+    const querySearching = `WHERE products.nameProduct LIKE '%${value}%' OR products.description LIKE '%${value}%' OR category.id LIKE '%${value}%'`;
 
     const limitResult = await querySQL(
-      `SELECT products.id, products.nameProduct,  category.nameCategory, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM ${table} INNER JOIN category ON products.id_category=category.id ${
+      `SELECT products.id, products.nameProduct, category.id, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM ${table} INNER JOIN category ON products.id_category=category.id ${
         category ? queryByCategory : ''
       } ${
         value ? querySearching : ''

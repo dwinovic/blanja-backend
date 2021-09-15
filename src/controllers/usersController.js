@@ -174,6 +174,7 @@ module.exports = {
       gender,
       verified,
       storeName,
+      description,
       image: imageRequest,
     } = req.body;
 
@@ -201,6 +202,7 @@ module.exports = {
       phoneNumber,
       gender,
       storeName,
+      description,
       image: imageRequest ? imageRequest : avatar,
       updatedAt: new Date(),
     };
@@ -308,6 +310,15 @@ module.exports = {
         dataUserRes.refresh = refreshToken;
 
         response(res, 200, dataUserRes, {}, 'Login success');
+      })
+      .catch(next);
+  },
+  getUserAddress: (req, res, next) => {
+    const idUser = req.params.idUser;
+    UserModel.getUserAddress(idUser)
+      .then((result) => {
+        const data = result;
+        response(res, 200, data);
       })
       .catch(next);
   },
