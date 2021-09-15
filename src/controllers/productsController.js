@@ -3,6 +3,7 @@ const uidshort = require('short-uuid');
 // const redis = require('redis');
 // const client = redis.createClient();
 const fs = require('fs');
+const cloudinary = require('../middleware/cloudinary');
 
 const {
   searchProductsModel,
@@ -121,7 +122,7 @@ module.exports = {
         response(res, 500, {}, err);
       });
   },
-  createNewProducts: (req, res) => {
+  createNewProducts: async (req, res) => {
     const {
       nameProduct,
       description,
@@ -132,16 +133,24 @@ module.exports = {
       color,
     } = req.body;
     const dataFilesRequest = req.files;
+
+    const uploader = async (path) =>
+      await cloudinary.uploads(path, 'Blanja com');
     // console.log('dataFilesRequest', dataFilesRequest);
     // Handle Image convert Array to String
     // eslint-disable-next-line no-undef
-    const locationImage = `${process.env.HOST_SERVER}/files/`;
+    // const locationImage = `${process.env.HOST_SERVER}/files/`;
 
     const images = [];
-    dataFilesRequest.forEach((item) => {
-      images.push(locationImage + item.filename);
-    });
-    const toStr = images.toString();
+
+    for (const file of dataFilesRequest) {
+      const { path } = file;
+      const newPath = await uploader(path);
+      console.log('newPath', newPath);
+      images.push(newPath.url);
+    }
+
+    const toStr = await images.toString();
     // UID
     const newUid = uid.generate();
     // Data to insert in DB
@@ -183,17 +192,27 @@ module.exports = {
     const id = req.params.id;
     const { nameProduct, description, id_category, price, stock } = req.body;
     const dataFilesRequest = req.files;
+    const uploader = async (path) =>
+      await cloudinary.uploads(path, 'VehicleRental');
     // console.log('dataFilesRequest', dataFilesRequest);
 
     // Handle Image convert Array to String
     // eslint-disable-next-line no-undef
-    const locationImage = `${process.env.HOST_SERVER}/files/`;
+    // const locationImage = `${process.env.HOST_SERVER}/files/`;
 
     const images = [];
-    dataFilesRequest.forEach((item) => {
-      images.push(locationImage + item.filename);
-    });
-    const toStr = images.toString();
+    if (dataFilesRequest) {
+      // dataFilesRequest.forEach((item, index) => {
+      //   tmpImage.push(`${process.env.HOST_SERVER}/files/${item.filename}`);
+      // });
+      for (const file of dataFilesRequest) {
+        const { path } = file;
+        const newPath = await uploader(path);
+        // console.log('newPath', newPath);
+        images.push(newPath.url);
+      }
+    }
+    const toStr = await images.toString();
 
     // Data to update in DB
     let dataProduct = {
