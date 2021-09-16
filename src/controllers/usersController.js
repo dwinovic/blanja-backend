@@ -9,8 +9,8 @@ const UserModel = require('../models/users');
 const short = require('short-uuid');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
 const verifiedEmail = require('../helpers/verifiedEmail');
+const cloudinary = require('../middleware/cloudinary');
 
 // eslint-disable-next-line no-undef
 const privateKey = process.env.PRIVATE_KEY;
@@ -167,7 +167,7 @@ module.exports = {
     const id = req.params.id;
     const {
       email,
-      password,
+      // password,
       name,
       role,
       phoneNumber,
@@ -179,23 +179,30 @@ module.exports = {
     } = req.body;
 
     // Hashing Password
-    let hash;
-    if (password.length > 20) {
-      hash = password;
-    } else {
-      const salt = bcrypt.genSaltSync(10);
-      hash = bcrypt.hashSync(password, salt);
-    }
+    // let hash;
+    // if (password.length > 20) {
+    //   hash = password;
+    // } else {
+    //   const salt = bcrypt.genSaltSync(10);
+    //   hash = bcrypt.hashSync(password, salt);
+    // }
+    // UPDATE AVATAR
+    const uploader = async (path) =>
+      await cloudinary.uploads(path, 'Blanja com');
 
+    let uploadImage;
     const dataFilesRequest = req.file;
-    const avatar = dataFilesRequest
-      ? // eslint-disable-next-line no-undef
-        `${process.env.HOST_SERVER}/files/${dataFilesRequest.filename}`
-      : 'user-default.png';
+    // const avatar = dataFilesRequest
+    //   ? // eslint-disable-next-line no-undef
+    //     `${process.env.HOST_SERVER}/files/${dataFilesRequest.filename}`
+    //   : 'user-default.png';
+    if (dataFilesRequest) {
+      uploadImage = await uploader(dataFilesRequest.path);
+    }
 
     const newData = {
       email,
-      password: hash,
+      // password: hash,
       name,
       role,
       verified,
@@ -203,43 +210,43 @@ module.exports = {
       gender,
       storeName,
       description,
-      image: imageRequest ? imageRequest : avatar,
+      image: uploadImage.url ? uploadImage.url : imageRequest,
       updatedAt: new Date(),
     };
 
     // OLD Images
-    const oldAvatar = await UserModel.getUserId(id)
-      .then((result) => {
-        const data = result[0].image;
-        return data;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // const oldAvatar = await UserModel.getUserId(id)
+    //   .then((result) => {
+    //     const data = result[0].image;
+    //     return data;
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
     // console.log(newData);
 
     UserModel.updateUser(id, newData)
       .then(async () => {
-        try {
-          if (
-            // eslint-disable-next-line no-undef
-            oldAvatar === `${process.env.HOST_SERVER}/files/user-default.png`
-          ) {
-            response(res, 200);
-          } else if (dataFilesRequest) {
-            const getAvatarName = oldAvatar.split('/')[4];
-            await fs.unlinkSync(`public/images/${getAvatarName}`);
-            console.log(`successfully deleted ${getAvatarName}`);
-          }
-        } catch (err) {
-          console.error('there was an error:', err.message);
-        }
+        // try {
+        //   if (
+        //     // eslint-disable-next-line no-undef
+        //     // oldAvatar === `${process.env.HOST_SERVER}/files/user-default.png`
+        //   ) {
+        //     response(res, 200);
+        //   } else if (dataFilesRequest) {
+        //     // const getAvatarName = oldAvatar.split('/')[4];
+        //     // await fs.unlinkSync(`public/images/${getAvatarName}`);
+        //     // console.log(`successfully deleted ${getAvatarName}`);
+        //   }
+        // } catch (err) {
+        //   console.error('there was an error:', err.message);
+        // }
 
         response(res, 200, newData);
       })
       .catch(async (err) => {
         try {
-          await fs.unlinkSync(`public/images/${avatar}`);
+          // await fs.unlinkSync(`public/images/${avatar}`);
           // console.log(`successfully deleted ${image}`);
         } catch (err) {
           // console.error('there was an error:', error.message);

@@ -1,22 +1,23 @@
 const multer = require('multer');
 const path = require('path');
-const short = require('short-uuid');
+// const short = require('short-uuid');
 const maxSize = 1024 * 1024 * 1;
 const fs = require('fs');
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/images');
-  },
-  filename: function (req, file, cb) {
-    const uid = short();
-    const newUid = uid.generate();
-    cb(null, `${newUid}.jpg`);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'public/images');
+//   },
+//   filename: function (req, file, cb) {
+//     const uid = short();
+//     const newUid = uid.generate();
+//     cb(null, `${newUid}.jpg`);
+//   },
+// });
 
 const upload = multer({
-  storage: storage,
+  // storage: storage,
+  storage: multer.diskStorage({}),
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },
