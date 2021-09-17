@@ -192,6 +192,7 @@ module.exports = {
 
     let uploadImage;
     const dataFilesRequest = req.file;
+    console.log('dataFilesRequest:', dataFilesRequest);
     // const avatar = dataFilesRequest
     //   ? // eslint-disable-next-line no-undef
     //     `${process.env.HOST_SERVER}/files/${dataFilesRequest.filename}`
