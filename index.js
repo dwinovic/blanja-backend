@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 require('dotenv').config();
 const express = require('express');
 const routes = require('./src/routes');
@@ -14,7 +15,12 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(morgan('dev'));
 // CORS
-app.use(cors());
+const optionCors = {
+  credentials: true,
+  origin: process.env.HOST_CLIENT,
+};
+
+app.use(cors(optionCors));
 
 // api routes
 app.use('/v1', routes);
