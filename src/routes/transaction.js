@@ -4,14 +4,16 @@ const {
   getAllTransaction,
   updateItemTransaction,
   getItemTransaction,
+  getHistoryTransaction,
 } = require('../controllers/transactionController');
 const { verifyAccess, sellerAccess } = require('../middleware/auth');
 const router = express.Router();
 
 router
-  .get('/', verifyAccess, sellerAccess, getAllTransaction)
-  .post('/', verifyAccess, sellerAccess, createItemTransaction)
-  .get('/:id', verifyAccess, sellerAccess, getItemTransaction)
+  .get('/', verifyAccess, getAllTransaction)
+  .post('/', verifyAccess, createItemTransaction)
+  .get('/user/:id', verifyAccess, getHistoryTransaction)
+  .get('/:id', verifyAccess, getItemTransaction)
   .post('/:id', updateItemTransaction, verifyAccess, sellerAccess)
   .delete('/:id');
 

@@ -192,6 +192,7 @@ module.exports = {
 
     let uploadImage;
     const dataFilesRequest = req.file;
+    console.log('dataFilesRequest:', dataFilesRequest);
     // const avatar = dataFilesRequest
     //   ? // eslint-disable-next-line no-undef
     //     `${process.env.HOST_SERVER}/files/${dataFilesRequest.filename}`
@@ -210,7 +211,7 @@ module.exports = {
       gender,
       storeName,
       description,
-      image: uploadImage.url ? uploadImage.url : imageRequest,
+      image: uploadImage ? uploadImage.url : imageRequest,
       updatedAt: new Date(),
     };
 
@@ -223,8 +224,6 @@ module.exports = {
     //   .catch((err) => {
     //     console.log(err);
     //   });
-    // console.log(newData);
-
     UserModel.updateUser(id, newData)
       .then(async () => {
         // try {

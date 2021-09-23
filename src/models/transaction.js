@@ -1,7 +1,7 @@
 const { querySQL } = require('../helpers');
 
 module.exports = {
-  getAllTransactionModel: async(field, sortBy, limit, offset) => {
+  getAllTransactionModel: async (field, sortBy, limit, offset) => {
     const queryJoinAllTransaction = `
     SELECT 
       transactions.idTransaction, 
@@ -49,6 +49,32 @@ module.exports = {
       `SELECT * FROM transactions WHERE idTransaction = '${idTransaction}'`
     );
   },
+  getHistoryTransaction: (idUser) => {
+    const queryJoinAllTransaction = `
+    SELECT 
+      transactions.idTransaction, 
+      transactions.statusOrder, 
+      users.idUser AS 'user id', 
+      users.name, 
+      users.email, 
+      users.phoneNumber, 
+      products.id AS 'product id', 
+      products.nameProduct, 
+      products.price, 
+      transactions.quantity, 
+      transactions.orderDate, 
+      transactions.orderDate 
+    FROM transactions 
+      INNER JOIN users 
+        ON transactions.id_user=users.idUser 
+      INNER JOIN products 
+        ON transactions.id_product=products.id
+     `;
+
+    return querySQL(
+      `${queryJoinAllTransaction} WHERE users.idUser = '${idUser}'`
+    );
+  },
   createTransaction: (data) => {
     return querySQL('INSERT INTO transactions SET ?', data);
   },
@@ -61,7 +87,7 @@ module.exports = {
   deleteTransaction: (id) => {
     return querySQL(`DELETE FROM transactions WHERE id = ${id}`);
   },
-  searchProductsModel: async(value, limit, table, field, sortBy, offset) => {
+  searchProductsModel: async (value, limit, table, field, sortBy, offset) => {
     // console.log(value, limit, table, field, sortBy);
     // check result count searching
 

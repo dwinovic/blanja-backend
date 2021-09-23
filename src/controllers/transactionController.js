@@ -7,10 +7,11 @@ const {
   updateTransaction,
   searchProductsModel,
   getItemTransaction,
+  getHistoryTransaction,
 } = require('../models/transaction');
 
 module.exports = {
-  getAllTransaction: async(req, res, next) => {
+  getAllTransaction: async (req, res, next) => {
     // Pagination data from middleware before
     try {
       if (!req.query.src) {
@@ -63,7 +64,8 @@ module.exports = {
             srcResponse(
               res,
               error.statusCode,
-              meta, {},
+              meta,
+              {},
               error.message,
               error.message
             );
@@ -94,20 +96,32 @@ module.exports = {
         response(res, 404, {}, err);
       });
   },
+  getHistoryTransaction: (req, res) => {
+    const idUser = req.params.id;
+    getHistoryTransaction(idUser)
+      .then((result) => {
+        // console.log(result);
+        response(res, 200, result);
+      })
+      .catch((err) => {
+        response(res, 404, {}, err);
+      });
+  },
   createItemTransaction: (req, res, next) => {
-    const { idUser, idNameProduct, quantity, idPayment, statusOrder } =
-    req.body;
+    const { idUser, bankPayment, idProduct, quantity, statusOrder } = req.body;
 
     const data = {
       idTransaction: uuidv4(),
       id_user: idUser,
-      id_name_product: idNameProduct,
+      bank_payment: bankPayment,
+      id_product: idProduct,
       quantity,
-      id_payment: idPayment,
       statusOrder,
       orderDate: new Date(),
       updatedAt: new Date(),
     };
+
+    console.log('data', data);
 
     createTransaction(data)
       .then(() => {
