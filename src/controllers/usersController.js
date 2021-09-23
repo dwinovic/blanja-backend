@@ -211,7 +211,7 @@ module.exports = {
       gender,
       storeName,
       description,
-      image: uploadImage.url ? uploadImage.url : imageRequest,
+      image: uploadImage ? uploadImage.url : imageRequest,
       updatedAt: new Date(),
     };
 
@@ -224,8 +224,6 @@ module.exports = {
     //   .catch((err) => {
     //     console.log(err);
     //   });
-    // console.log(newData);
-
     UserModel.updateUser(id, newData)
       .then(async () => {
         // try {
