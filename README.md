@@ -5,7 +5,7 @@
     <img src="https://res.cloudinary.com/dnv-images/image/upload/v1631599120/Blanja%20com/blanja_pdgveq.svg" alt="Logo" width="140" height="194">
   </a>
 
-  <h3 align="center">RESTful API for Blanja</h3>
+  <h3 align="center">Backend Application for Blanja</h3>
 
   <p align="center">
     Back-end application or server in charge of supplying <br/> Blanja web application data needs through Rest API technology.
