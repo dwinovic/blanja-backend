@@ -181,7 +181,7 @@ module.exports = {
       imageId,
     } = req.body;
     // UPDATE AVATAR
-    console.log('req.body:', req.body);
+    // console.log('req.body:', req.body);
 
     const fileUpload = req.file;
     // console.log('fileUpload', fileUpload);
