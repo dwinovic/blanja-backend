@@ -1,8 +1,12 @@
+/* eslint-disable no-undef */
 const multer = require('multer');
 const path = require('path');
 // const short = require('short-uuid');
 const maxSize = 1024 * 1024 * 1;
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const { configCloudinary } = require('./cloudinary');
 
 // const storage = multer.diskStorage({
 //   destination: function (req, file, cb) {
@@ -15,9 +19,18 @@ const fs = require('fs');
 //   },
 // });
 
+cloudinary.config(configCloudinary);
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'Blanja_com',
+  },
+});
+
 const upload = multer({
-  // storage: storage,
-  storage: multer.diskStorage({}),
+  storage: storage,
+  // storage: multer.diskStorage({}),
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },

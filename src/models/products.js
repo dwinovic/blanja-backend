@@ -75,7 +75,7 @@ module.exports = {
     // console.log(typeof offset);
 
     const queryByCategory = `WHERE products.id_category LIKE '%${category}%'`;
-    const querySearching = `WHERE products.nameProduct LIKE '%${value}%' OR products.description LIKE '%${value}%' OR category.id LIKE '%${value}%'`;
+    const querySearching = `WHERE products.nameProduct LIKE '%${value}%' OR category.id LIKE '%${value}%'`;
 
     const limitResult = await querySQL(
       `SELECT products.id, products.nameProduct, category.id, products.description, products.price, products.stock, products.imageProduct, products.createdAt, products.updatedAt FROM ${table} INNER JOIN category ON products.id_category=category.id ${
