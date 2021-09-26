@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 const {
   response,
   srcResponse,
@@ -10,7 +11,9 @@ const short = require('short-uuid');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const verifiedEmail = require('../helpers/verifiedEmail');
-const cloudinary = require('../middleware/cloudinary');
+const cloudinary = require('cloudinary').v2;
+const { configCloudinary } = require('../middleware/cloudinary');
+cloudinary.config(configCloudinary);
 
 // eslint-disable-next-line no-undef
 const privateKey = process.env.PRIVATE_KEY;
@@ -167,7 +170,6 @@ module.exports = {
     const id = req.params.id;
     const {
       email,
-      // password,
       name,
       role,
       phoneNumber,
@@ -176,34 +178,23 @@ module.exports = {
       storeName,
       description,
       image: imageRequest,
+      imageId,
     } = req.body;
-
-    // Hashing Password
-    // let hash;
-    // if (password.length > 20) {
-    //   hash = password;
-    // } else {
-    //   const salt = bcrypt.genSaltSync(10);
-    //   hash = bcrypt.hashSync(password, salt);
-    // }
     // UPDATE AVATAR
-    const uploader = async (path) =>
-      await cloudinary.uploads(path, 'Blanja com');
+    console.log('req.body:', req.body);
 
-    let uploadImage;
-    const dataFilesRequest = req.file;
-    console.log('dataFilesRequest:', dataFilesRequest);
-    // const avatar = dataFilesRequest
-    //   ? // eslint-disable-next-line no-undef
-    //     `${process.env.HOST_SERVER}/files/${dataFilesRequest.filename}`
-    //   : 'user-default.png';
-    if (dataFilesRequest) {
-      uploadImage = await uploader(dataFilesRequest.path);
-    }
+    const fileUpload = req.file;
+    // console.log('fileUpload', fileUpload);
+
+    // DESTORY OLD IMAGE
+    // if (imageId) {
+    //   await cloudinary.uploader.destroy(imageId, function (result) {
+    //     console.log('destroy:', result);
+    //   });
+    // }
 
     const newData = {
       email,
-      // password: hash,
       name,
       role,
       verified,
@@ -211,19 +202,11 @@ module.exports = {
       gender,
       storeName,
       description,
-      image: uploadImage ? uploadImage.url : imageRequest,
+      imageUrl: fileUpload ? fileUpload.path : imageRequest,
+      imageId: fileUpload ? fileUpload.filename.split('/').pop() : imageId,
       updatedAt: new Date(),
     };
-
-    // OLD Images
-    // const oldAvatar = await UserModel.getUserId(id)
-    //   .then((result) => {
-    //     const data = result[0].image;
-    //     return data;
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    // console.log('newData to db', newData);
     UserModel.updateUser(id, newData)
       .then(async () => {
         // try {
@@ -244,6 +227,7 @@ module.exports = {
         response(res, 200, newData);
       })
       .catch(async (err) => {
+        // console.log('err', err);
         try {
           // await fs.unlinkSync(`public/images/${avatar}`);
           // console.log(`successfully deleted ${image}`);

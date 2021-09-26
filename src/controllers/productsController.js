@@ -2,8 +2,10 @@ const { response, srcResponse, srcFeature, pagination } = require('../helpers');
 const uidshort = require('short-uuid');
 // const redis = require('redis');
 // const client = redis.createClient();
-const fs = require('fs');
-const cloudinary = require('../middleware/cloudinary');
+// const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { configCloudinary } = require('../middleware/cloudinary');
+cloudinary.config(configCloudinary);
 
 const {
   searchProductsModel,
@@ -132,22 +134,20 @@ module.exports = {
       owner,
       color,
     } = req.body;
-    const dataFilesRequest = req.files;
+    const fileUpload = req.files;
 
-    const uploader = async (path) =>
-      await cloudinary.uploads(path, 'Blanja com');
-    // console.log('dataFilesRequest', dataFilesRequest);
+    // console.log('fileUpload', fileUpload);
     // Handle Image convert Array to String
     // eslint-disable-next-line no-undef
     // const locationImage = `${process.env.HOST_SERVER}/files/`;
 
     const images = [];
 
-    for (const file of dataFilesRequest) {
+    for (const file of fileUpload) {
       const { path } = file;
-      const newPath = await uploader(path);
-      console.log('newPath', newPath);
-      images.push(newPath.url);
+      // const newPath = path;
+      // console.log('newPath', newPath);
+      images.push(path);
     }
 
     const toStr = await images.toString();
@@ -169,48 +169,61 @@ module.exports = {
       updatedAt: new Date(),
     };
 
-    // console.log(dataProducts);
+    console.log('dataProducts:', dataProducts);
     createNewProductModel(dataProducts)
       .then(() => {
         // console.log(result);
         response(res, 200, dataProducts);
       })
       .catch((err) => {
-        try {
-          dataFilesRequest.forEach(async (item) => {
-            await fs.unlinkSync(`public/images/${item.filename}`);
-          });
-          // console.log(`successfully deleted ${image}`);
-        } catch (error) {
-          // console.error('there was an error:', error.message);
-        }
+        // try {
+        //   fileUpload.forEach(async (item) => {
+        //     await fs.unlinkSync(`public/images/${item.filename}`);
+        //   });
+        //   // console.log(`successfully deleted ${image}`);
+        // } catch (error) {
+        //   // console.error('there was an error:', error.message);
+        // }
         response(res, 500, {}, err);
       });
   },
   updateProduct: async (req, res) => {
     // Request
     const id = req.params.id;
-    const { nameProduct, description, id_category, price, stock } = req.body;
-    const dataFilesRequest = req.files;
-    const uploader = async (path) =>
-      await cloudinary.uploads(path, 'VehicleRental');
-    // console.log('dataFilesRequest', dataFilesRequest);
+    const {
+      nameProduct,
+      description,
+      id_category,
+      price,
+      stock,
+      image: currentImage,
+    } = req.body;
+    const fileUpload = req.files;
+    // console.log('fileUpload', fileUpload);
 
     // Handle Image convert Array to String
     // eslint-disable-next-line no-undef
     // const locationImage = `${process.env.HOST_SERVER}/files/`;
-
+    console.log('currentImage', currentImage);
     const images = [];
-    if (dataFilesRequest) {
-      // dataFilesRequest.forEach((item, index) => {
+
+    if (fileUpload) {
+      // fileUpload.forEach((item, index) => {
       //   tmpImage.push(`${process.env.HOST_SERVER}/files/${item.filename}`);
       // });
-      for (const file of dataFilesRequest) {
+      for (const file of fileUpload) {
         const { path } = file;
-        const newPath = await uploader(path);
-        // console.log('newPath', newPath);
-        images.push(newPath.url);
+        console.log('path', path);
+        images.push(path);
       }
+    }
+
+    if (currentImage) {
+      images.push(currentImage);
+      // for (const image of currentImage) {
+      //   console.log('image', image);
+      //   images.push(image);
+      // }
     }
     const toStr = await images.toString();
 
@@ -224,42 +237,34 @@ module.exports = {
       imageProduct: toStr,
       updatedAt: new Date(),
     };
-
-    // UID
-    const newUid = uid.generate();
-    if (typeof id !== 'string') {
-      dataProduct.id = newUid;
-    }
+    console.log('dataProduct', dataProduct);
+    // // UID
+    // const newUid = uid.generate();
+    // if (typeof id !== 'string') {
+    //   dataProduct.id = newUid;
+    // }
 
     // GET OLD IMAGE NAME
-    let dataImageOld = await getItemProductModel(id)
-      .then((result) => {
-        const imageResponse = result[0].imageProduct;
-        const imageArray = imageResponse.split(',');
-        return imageArray;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // let dataImageOld = await getItemProductModel(id)
+    //   .then((result) => {
+    //     const imageResponse = result[0].imageProduct;
+    //     const imageArray = imageResponse.split(',');
+    //     return imageArray;
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
 
     // UPDATE PRODUCTS
     // console.log('dataImageOld', dataImageOld);
     updateProductModel(id, dataProduct)
       .then(() => {
-        // Delete old images
-        dataImageOld.forEach(async (image) => {
-          try {
-            const getImageName = image.split('/')[4];
-            await fs.unlinkSync(`public/images/${getImageName}`);
-            // console.log(`successfully deleted ${image}`);
-          } catch (error) {
-            // console.error('there was an error:', error.message);
-          }
-        });
-
+        // console.log('result success', result);
+        // console.log('dataProduct', dataProduct);
         response(res, 200, dataProduct);
       })
       .catch((err) => {
+        console.log(err);
         response(res, 500, {}, err);
       });
   },
